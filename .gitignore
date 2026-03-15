@@ -1,0 +1,5 @@
+# Ignore everything except prototype
+docs/
+assets/
+.claude/
+.DS_Store

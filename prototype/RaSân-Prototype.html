@@ -1,0 +1,2019 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RaSân — Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --brand: #1DB954;
+  --brand-dark: #158f3e;
+  --brand-light: #e8f9ee;
+  --purple: #7C5CBF;
+  --purple-light: #ede8f8;
+  --bg: #F5F5F0;
+  --surface: #FFFFFF;
+  --surface2: #F0EFE9;
+  --border: rgba(0,0,0,0.08);
+  --text: #1A1A18;
+  --text2: #666660;
+  --text3: #999992;
+  --danger: #E5484D;
+  --warning: #F76B15;
+  --font: 'Be Vietnam Pro', sans-serif;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { font-family: var(--font); background: #1A1A18; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 20px; }
+
+/* OUTER LAYOUT */
+.demo-wrap { display: flex; gap: 32px; align-items: flex-start; max-width: 1100px; width: 100%; }
+.nav-sidebar { width: 200px; flex-shrink: 0; position: sticky; top: 20px; }
+.nav-sidebar h3 { color: rgba(255,255,255,0.4); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; font-weight: 500; }
+.nav-btn { display: block; width: 100%; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); font-family: var(--font); font-size: 12px; padding: 10px 14px; border-radius: 10px; margin-bottom: 6px; cursor: pointer; transition: all 0.2s; }
+.nav-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+.nav-btn.active { background: var(--brand); border-color: var(--brand); color: white; font-weight: 600; }
+.nav-badge { display: inline-block; background: rgba(255,255,255,0.15); border-radius: 4px; padding: 1px 6px; font-size: 10px; margin-left: 6px; }
+
+/* PHONE FRAME */
+.phone-wrap { flex: 1; display: flex; justify-content: center; }
+.phone { width: 375px; background: var(--bg); border-radius: 44px; overflow: hidden; border: 8px solid #2a2a28; box-shadow: 0 40px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1); min-height: 720px; position: relative; }
+.phone-notch { background: #2a2a28; height: 28px; display: flex; align-items: center; justify-content: center; }
+.notch-inner { background: #1a1a18; width: 120px; height: 22px; border-radius: 0 0 14px 14px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.notch-cam { width: 8px; height: 8px; border-radius: 50%; background: #2a2a28; }
+.status-bar { background: var(--surface); display: flex; justify-content: space-between; align-items: center; padding: 6px 20px; font-size: 11px; font-weight: 600; color: var(--text); }
+
+/* SCREENS */
+.screen { display: none; flex-direction: column; min-height: 660px; }
+.screen.active { display: flex; }
+
+/* HEADER */
+.app-header { background: var(--surface); padding: 14px 20px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.app-header h1 { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; flex: 1; }
+.header-logo { font-size: 20px; font-weight: 800; color: var(--brand); letter-spacing: -1px; }
+.back-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--surface2); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text); font-size: 16px; }
+.header-action { width: 32px; height: 32px; border-radius: 50%; background: var(--brand-light); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--brand); font-size: 16px; font-weight: 700; }
+
+/* TABS */
+.tab-bar { background: var(--surface); display: flex; border-bottom: 1px solid var(--border); }
+.tab { flex: 1; padding: 12px 0; text-align: center; font-size: 13px; font-weight: 500; color: var(--text3); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+.tab.active { color: var(--brand); border-bottom-color: var(--brand); font-weight: 600; }
+
+/* SCROLL CONTENT */
+.scroll-content { flex: 1; overflow-y: auto; padding-bottom: 80px; }
+.scroll-content::-webkit-scrollbar { display: none; }
+
+/* CARDS */
+.feed-card { background: var(--surface); margin: 10px 14px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+.card-header { padding: 14px 16px 10px; display: flex; align-items: center; gap: 10px; }
+.avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.av-green { background: var(--brand-light); color: var(--brand-dark); }
+.av-purple { background: var(--purple-light); color: var(--purple); }
+.av-orange { background: #fff0e6; color: #c05500; }
+.av-blue { background: #e6f0ff; color: #1a5bbf; }
+.card-meta { flex: 1; }
+.card-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.card-time { font-size: 11px; color: var(--text3); margin-top: 1px; }
+.card-img { background: linear-gradient(135deg, #e8f5e9, #f0ffe4); height: 160px; display: flex; align-items: center; justify-content: center; position: relative; }
+.card-img-label { font-size: 12px; color: var(--text3); }
+.card-body { padding: 10px 16px; font-size: 13px; color: var(--text); line-height: 1.5; }
+.card-actions { padding: 10px 16px 14px; display: flex; gap: 8px; align-items: center; }
+.react-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 5px 12px; font-size: 11px; font-weight: 500; color: var(--text2); cursor: pointer; transition: all 0.2s; font-family: var(--font); }
+.react-btn:hover, .react-btn.active { background: var(--brand-light); color: var(--brand-dark); border-color: var(--brand); }
+
+/* BADGES */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.badge-green { background: var(--brand-light); color: var(--brand-dark); }
+.badge-purple { background: var(--purple-light); color: var(--purple); }
+.badge-red { background: #ffeaea; color: var(--danger); }
+.badge-orange { background: #fff0e6; color: var(--warning); }
+.badge-gray { background: var(--surface2); color: var(--text2); }
+
+/* MATCH CARD */
+.match-card { background: var(--surface); margin: 8px 14px; border-radius: var(--radius); padding: 16px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; }
+.match-card:hover { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-light); }
+.match-card.full { opacity: 0.5; cursor: default; }
+.match-card.full:hover { border-color: var(--border); box-shadow: none; }
+.mc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.mc-name { font-size: 14px; font-weight: 700; color: var(--text); }
+.mc-detail { font-size: 12px; color: var(--text2); margin-top: 3px; display: flex; align-items: center; gap: 4px; }
+.mc-chip { display: inline-block; background: var(--surface2); border-radius: 6px; padding: 2px 8px; font-size: 11px; color: var(--text2); margin-right: 4px; }
+
+/* BUTTONS */
+.btn-primary { background: var(--brand); color: white; border: none; border-radius: 12px; padding: 13px 20px; font-size: 14px; font-weight: 700; cursor: pointer; width: 100%; font-family: var(--font); transition: all 0.15s; letter-spacing: -0.2px; }
+.btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-secondary { background: var(--surface); color: var(--text); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 20px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; font-family: var(--font); transition: all 0.15s; }
+.btn-secondary:hover { border-color: var(--brand); color: var(--brand); }
+.btn-join { background: var(--brand); color: white; border: none; border-radius: 10px; padding: 10px 16px; font-size: 13px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 12px; font-family: var(--font); transition: all 0.15s; }
+.btn-join:hover { background: var(--brand-dark); }
+.btn-sm { padding: 7px 16px; font-size: 12px; border-radius: 8px; }
+
+/* FORM */
+.form-section { padding: 16px 20px; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; display: block; letter-spacing: 0.02em; }
+.form-input { width: 100%; background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 16px; font-size: 14px; color: var(--text); font-family: var(--font); outline: none; transition: border-color 0.2s; }
+.form-input:focus { border-color: var(--brand); }
+.form-row { margin-bottom: 14px; }
+.segment-control { display: flex; background: var(--surface2); border-radius: 12px; padding: 3px; gap: 2px; }
+.seg-btn { flex: 1; padding: 9px 0; text-align: center; border: none; border-radius: 10px; background: transparent; font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; font-family: var(--font); transition: all 0.2s; }
+.seg-btn.active { background: var(--surface); color: var(--brand); font-weight: 700; box-shadow: var(--shadow); }
+
+/* CHECKIN STEPS */
+.step-list { padding: 8px 0; }
+.step-item { display: flex; align-items: center; gap: 14px; padding: 14px 20px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; }
+.step-item:hover { background: var(--surface2); }
+.step-item.current { background: #f0fdf4; }
+.step-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.step-done-circle { background: var(--brand); color: white; }
+.step-active-circle { background: var(--brand-light); color: var(--brand); border: 2px solid var(--brand); }
+.step-pending-circle { background: var(--surface2); color: var(--text3); }
+.step-content { flex: 1; }
+.step-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.step-subtitle { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+/* PROFILE */
+.profile-hero { background: var(--surface); padding: 24px 20px 16px; text-align: center; border-bottom: 1px solid var(--border); }
+.profile-avatar { width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; border: 3px solid var(--brand); }
+.profile-name { font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+.profile-meta { font-size: 12px; color: var(--text3); margin-top: 4px; }
+.profile-stats { display: flex; justify-content: center; gap: 0; margin: 16px 0 0; border-top: 1px solid var(--border); }
+.pstat { flex: 1; text-align: center; padding: 14px 8px; border-right: 1px solid var(--border); }
+.pstat:last-child { border-right: none; }
+.pstat-num { font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+.pstat-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.follow-wrap { padding: 14px 20px; display: flex; gap: 10px; }
+
+/* STATS */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 16px; }
+.stat-card { background: var(--surface); border-radius: var(--radius-sm); padding: 14px; border: 1px solid var(--border); }
+.stat-num { font-size: 24px; font-weight: 800; color: var(--text); letter-spacing: -1px; }
+.stat-label { font-size: 11px; color: var(--text3); margin-top: 3px; font-weight: 500; }
+.stat-change { font-size: 11px; color: var(--brand); font-weight: 600; margin-top: 4px; }
+
+/* LEADERBOARD */
+.leaderboard { margin: 0 14px 10px; background: var(--surface); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+.lb-header { padding: 12px 16px; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.lb-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.lb-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.lb-row:last-child { border-bottom: none; }
+.lb-row.me { background: var(--brand-light); }
+.lb-rank { font-size: 13px; font-weight: 700; color: var(--text3); width: 20px; text-align: center; }
+.lb-rank.gold { color: #c9820a; font-size: 16px; }
+.lb-rank.silver { color: #888; font-size: 16px; }
+.lb-rank.bronze { color: #a0522d; font-size: 16px; }
+.lb-name { flex: 1; font-size: 13px; font-weight: 600; color: var(--text); }
+.lb-score { font-size: 14px; font-weight: 800; color: var(--brand); }
+
+/* ONBOARDING */
+.onboard-wrap { padding: 24px 24px; flex: 1; display: flex; flex-direction: column; }
+.onboard-step-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 32px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
+.dot.active { background: var(--brand); width: 20px; border-radius: 4px; }
+.onboard-title { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; margin-bottom: 8px; line-height: 1.2; }
+.onboard-sub { font-size: 14px; color: var(--text2); margin-bottom: 28px; line-height: 1.5; }
+.skill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+.skill-btn { background: var(--surface); border: 2px solid var(--border); border-radius: 14px; padding: 16px 12px; text-align: center; cursor: pointer; transition: all 0.2s; }
+.skill-btn.active { border-color: var(--brand); background: var(--brand-light); }
+.skill-icon { font-size: 24px; margin-bottom: 6px; }
+.skill-label { font-size: 13px; font-weight: 600; color: var(--text); }
+.skill-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.freq-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+.freq-btn { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 13px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s; }
+.freq-btn.active { border-color: var(--brand); background: var(--brand-light); }
+.freq-label { font-size: 14px; font-weight: 600; color: var(--text); }
+.freq-check { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; color: transparent; }
+.freq-btn.active .freq-check { background: var(--brand); border-color: var(--brand); color: white; }
+.mt-auto { margin-top: auto; }
+.skip-btn { background: none; border: none; color: var(--text3); font-size: 13px; font-family: var(--font); cursor: pointer; padding: 12px; width: 100%; text-align: center; }
+
+/* BOTTOM NAV */
+.bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); display: flex; padding-bottom: 8px; }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 0 0; cursor: pointer; transition: color 0.2s; color: var(--text3); }
+.nav-item.active { color: var(--brand); }
+.nav-icon { font-size: 20px; line-height: 1; }
+.nav-label { font-size: 9px; font-weight: 600; letter-spacing: 0.02em; }
+.nav-center-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0 0; cursor: pointer; }
+.nav-center-inner { width: 40px; height: 40px; background: var(--brand); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; font-weight: 700; margin-top: -14px; border: 3px solid var(--bg); }
+
+/* SECTION LABEL */
+.section-label { padding: 16px 20px 8px; font-size: 12px; font-weight: 700; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* FILTER ROW */
+.filter-row { padding: 10px 14px; display: flex; gap: 8px; overflow-x: auto; }
+.filter-row::-webkit-scrollbar { display: none; }
+.filter-chip { background: var(--surface); border: 1.5px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 600; color: var(--text2); cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: all 0.2s; font-family: var(--font); }
+.filter-chip.active { background: var(--brand); border-color: var(--brand); color: white; }
+
+/* DIVIDER */
+.divider { height: 8px; background: var(--surface2); }
+
+/* COMMUNITY SEARCH */
+.community-search-wrap { padding: 12px 14px 10px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.community-search-bar { display: flex; align-items: center; gap: 10px; background: var(--surface2); border-radius: 14px; padding: 10px 14px; }
+.community-search-icon { font-size: 18px; flex-shrink: 0; }
+.community-search-input { flex: 1; background: none; border: none; outline: none; font-family: var(--font); font-size: 14px; color: var(--text3); }
+.community-search-actions { display: flex; align-items: center; gap: 10px; }
+.community-search-actions svg { display: block; }
+.community-quick-filters { display: flex; gap: 8px; overflow-x: auto; padding: 10px 14px 4px; }
+.community-quick-filters::-webkit-scrollbar { display: none; }
+.cqf-btn { background: #e8ede9; border: none; border-radius: 12px; padding: 10px 16px; font-size: 13px; font-weight: 600; color: #2d5a35; cursor: pointer; white-space: nowrap; flex-shrink: 0; font-family: var(--font); transition: all 0.2s; }
+.cqf-btn:hover, .cqf-btn.active { background: var(--brand); color: white; }
+
+/* NOTIFICATION DOT */
+.notif-dot { width: 8px; height: 8px; background: var(--danger); border-radius: 50%; position: absolute; top: 8px; right: 18px; }
+
+/* STREAK */
+.streak-bar { margin: 0 14px 10px; background: linear-gradient(135deg, var(--brand-light), #e8f9ee); border-radius: var(--radius); padding: 14px 16px; border: 1px solid var(--brand); display: flex; align-items: center; gap: 14px; }
+.streak-icon { font-size: 28px; }
+.streak-text { font-size: 13px; font-weight: 700; color: var(--brand-dark); }
+.streak-sub { font-size: 11px; color: var(--brand-dark); opacity: 0.7; margin-top: 2px; }
+
+/* ONBOARDING INTRO */
+.onboard-intro { flex: 1; display: flex; flex-direction: column; padding: 32px 24px; }
+.brand-big { font-size: 42px; font-weight: 900; color: var(--brand); letter-spacing: -2px; margin-bottom: 8px; }
+.brand-tagline { font-size: 16px; color: var(--text2); font-weight: 400; margin-bottom: 40px; line-height: 1.5; }
+.feature-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 40px; flex: 1; }
+.feature-item { display: flex; align-items: center; gap: 14px; }
+.feature-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.feature-icon.green { background: var(--brand-light); }
+.feature-icon.purple { background: var(--purple-light); }
+.feature-icon.orange { background: #fff0e6; }
+.feature-text { font-size: 14px; font-weight: 600; color: var(--text); }
+.feature-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.auth-btns { display: flex; flex-direction: column; gap: 10px; }
+.btn-google { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 13px; font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; font-family: var(--font); display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.15s; }
+.btn-google:hover { border-color: var(--text2); }
+.btn-phone { background: var(--text); color: white; border: none; border-radius: 12px; padding: 13px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: var(--font); transition: all 0.15s; }
+.btn-phone:hover { opacity: 0.9; }
+
+/* COMMUNITY */
+.community-card { margin: 6px 14px; background: var(--surface); border-radius: var(--radius); padding: 14px 16px; border: 1px solid var(--border); display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s; }
+.community-card:hover { border-color: var(--brand); }
+.community-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--brand-light); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.community-name { font-size: 14px; font-weight: 700; color: var(--text); }
+.community-count { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.community-join { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 20px; padding: 5px 14px; font-size: 12px; font-weight: 600; color: var(--text2); cursor: pointer; font-family: var(--font); margin-left: auto; flex-shrink: 0; transition: all 0.2s; }
+.community-join.joined { background: var(--brand-light); color: var(--brand-dark); border-color: var(--brand); }
+
+/* NOTIFICATION */
+.notif-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--border); }
+.notif-unread { background: #f0fdf4; }
+.notif-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.notif-text { flex: 1; font-size: 13px; color: var(--text); line-height: 1.4; }
+.notif-text b { font-weight: 700; }
+.notif-time { font-size: 11px; color: var(--text3); margin-top: 3px; }
+.notif-icon-badge { width: 18px; height: 18px; border-radius: 50%; position: absolute; bottom: 0; right: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; }
+.notif-av-wrap { position: relative; }
+
+/* ANIMATIONS */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.screen.active { animation: fadeIn 0.2s ease; }
+
+/* SCORE INPUT */
+.score-row { display: flex; align-items: center; gap: 10px; }
+.score-input { flex: 1; background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 16px; font-weight: 700; text-align: center; color: var(--text); font-family: var(--font); }
+.score-vs { font-size: 12px; font-weight: 700; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="demo-wrap">
+
+<!-- SIDEBAR NAV -->
+<div class="nav-sidebar">
+  <h3>RaSân Prototype</h3>
+  <button class="nav-btn active" onclick="goTo('onboard-intro')">Màn hình mở đầu</button>
+  <button class="nav-btn" onclick="goTo('onboard-1')">Onboarding 1/4 <span class="nav-badge">US-02</span></button>
+  <button class="nav-btn" onclick="goTo('onboard-2')">Onboarding 2/4</button>
+  <button class="nav-btn" onclick="goTo('onboard-3')">Onboarding 3/4</button>
+  <button class="nav-btn" onclick="goTo('onboard-4')">Onboarding 4/4</button>
+  <button class="nav-btn" onclick="goTo('feed')">Home Feed <span class="nav-badge">US-05</span></button>
+  <button class="nav-btn" onclick="goTo('discover')">Khám phá</button>
+  <button class="nav-btn" onclick="goTo('post-create')">Tạo Post <span class="nav-badge">US-06</span></button>
+  <button class="nav-btn" onclick="goTo('checkin-1')">Check-in 1/5 <span class="nav-badge">US-09</span></button>
+  <button class="nav-btn" onclick="goTo('checkin-2')">Check-in 2/5</button>
+  <button class="nav-btn" onclick="goTo('checkin-3')">Check-in 3/5</button>
+  <button class="nav-btn" onclick="goTo('ghepsân')">Ghép sân <span class="nav-badge">US-13</span></button>
+  <button class="nav-btn" onclick="goTo('join-confirm')">Join Confirm <span class="nav-badge">US-14</span></button>
+  <button class="nav-btn" onclick="goTo('profile')">Profile <span class="nav-badge">US-03</span></button>
+  <button class="nav-btn" onclick="goTo('stats')">Stats & LB <span class="nav-badge">US-10,16</span></button>
+  <button class="nav-btn" onclick="goTo('community')">Community <span class="nav-badge">US-15</span></button>
+  <button class="nav-btn" onclick="goTo('notifications')">Notifications <span class="nav-badge">US-08</span></button>
+  <h3 style="margin-top:16px;">Phase 2 — Booking</h3>
+  <button class="nav-btn" onclick="goTo('search')">Tìm sân <span class="nav-badge">US-25</span></button>
+  <button class="nav-btn" onclick="goTo('court')">Court Profile <span class="nav-badge">US-17</span></button>
+  <button class="nav-btn" onclick="goTo('booking-1')">Booking 1/4 <span class="nav-badge">US-18</span></button>
+  <button class="nav-btn" onclick="goTo('booking-2')">Booking 2/4</button>
+  <button class="nav-btn" onclick="goTo('booking-3')">Booking 3/4</button>
+  <button class="nav-btn" onclick="goTo('booking-done')">Booking ✓</button>
+  <button class="nav-btn" onclick="goTo('owner-dashboard')">Owner Dashboard <span class="nav-badge">US-19</span></button>
+  <button class="nav-btn" onclick="goTo('events')">Events & Vé <span class="nav-badge">US-21</span></button>
+  <button class="nav-btn" onclick="goTo('ticket-buy')">Mua vé <span class="nav-badge">US-22</span></button>
+  <button class="nav-btn" onclick="goTo('wallet')">Ví RaSân <span class="nav-badge">US-24</span></button>
+  <button class="nav-btn" onclick="goTo('court-onboard')">Owner Onboard 1 <span class="nav-badge">US-27</span></button>
+  <button class="nav-btn" onclick="goTo('court-onboard-2')">Owner Onboard 2</button>
+</div>
+
+<!-- PHONE -->
+<div class="phone-wrap">
+<div class="phone">
+  <div class="phone-notch"><div class="notch-inner"><div class="notch-cam"></div></div></div>
+  <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+
+  <!-- ============ SCREEN: ONBOARD INTRO ============ -->
+  <div class="screen active" id="sc-onboard-intro">
+    <div class="onboard-intro">
+      <div class="brand-big">RaSân</div>
+      <div class="brand-tagline">Cộng đồng thể thao sân court số 1 Việt Nam. Track thành tích, ghép sân, kết nối.</div>
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="feature-icon green">🏆</div>
+          <div><div class="feature-text">Track thành tích mỗi trận</div><div class="feature-sub">Như Strava nhưng cho Pickleball</div></div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon purple">🤝</div>
+          <div><div class="feature-text">Ghép sân trong 30 giây</div><div class="feature-sub">Không cần nhắn Zalo từng người</div></div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon orange">🌏</div>
+          <div><div class="feature-text">Cộng đồng theo quận</div><div class="feature-sub">Kết nối người chơi gần bạn</div></div>
+        </div>
+      </div>
+      <div class="auth-btns">
+        <button class="btn-phone" onclick="goTo('onboard-1')">Bắt đầu với Số điện thoại</button>
+        <button class="btn-google" onclick="goTo('onboard-1')">
+          <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2.04a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/><path fill="#FBBC05" d="M4.5 10.48A4.8 4.8 0 0 1 4.5 7.5V5.43H1.83a8 8 0 0 0 0 7.14l2.67-2.09z"/><path fill="#EA4335" d="M8.98 3.58c1.32 0 2.5.45 3.44 1.35l2.54-2.54A8 8 0 0 0 1.83 5.43L4.5 7.5a4.77 4.77 0 0 1 4.48-3.92z"/></svg>
+          Tiếp tục với Google
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: ONBOARD 1 - Tên ============ -->
+  <div class="screen" id="sc-onboard-1">
+    <div class="onboard-wrap">
+      <div class="onboard-step-dots">
+        <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+      <div class="onboard-title">Bạn tên gì?</div>
+      <div class="onboard-sub">Tên hiển thị trong cộng đồng. Dùng tên thật để mọi người dễ nhận ra bạn.</div>
+      <div class="form-row">
+        <label class="form-label">Tên hiển thị</label>
+        <input class="form-input" type="text" placeholder="VD: Minh Khoa" value="Minh Khoa">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Số điện thoại</label>
+        <input class="form-input" type="tel" placeholder="0912 345 678" value="0912 345 678">
+      </div>
+      <div class="mt-auto">
+        <button class="btn-primary" onclick="goTo('onboard-2')">Tiếp theo →</button>
+        <button class="skip-btn" onclick="goTo('onboard-2')">Bỏ qua</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: ONBOARD 2 - Quận & Môn ============ -->
+  <div class="screen" id="sc-onboard-2">
+    <div class="onboard-wrap">
+      <div class="onboard-step-dots">
+        <div class="dot"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+      <div class="onboard-title">Bạn ở đâu và chơi môn gì?</div>
+      <div class="onboard-sub">Để tìm người ghép sân và sự kiện gần bạn.</div>
+      <div class="form-row">
+        <label class="form-label">Quận thường chơi</label>
+        <select class="form-input">
+          <option>Quận 7</option><option>Quận 2</option><option>Bình Thạnh</option>
+          <option>Quận 1</option><option>Thủ Đức</option><option>Phú Nhuận</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Môn thể thao</label>
+        <div class="skill-grid">
+          <div class="skill-btn active" onclick="toggleSkill(this)">
+            <div class="skill-icon">🏓</div>
+            <div class="skill-label">Pickleball</div>
+            <div class="skill-sub">Đang bùng nổ</div>
+          </div>
+          <div class="skill-btn" onclick="toggleSkill(this)">
+            <div class="skill-icon">🏸</div>
+            <div class="skill-label">Cầu lông</div>
+            <div class="skill-sub">Phase 2</div>
+          </div>
+          <div class="skill-btn" onclick="toggleSkill(this)">
+            <div class="skill-icon">🎾</div>
+            <div class="skill-label">Tennis</div>
+            <div class="skill-sub">Phase 2</div>
+          </div>
+          <div class="skill-btn" onclick="toggleSkill(this)">
+            <div class="skill-icon">🏐</div>
+            <div class="skill-label">Bóng chuyền</div>
+            <div class="skill-sub">Phase 3</div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-auto">
+        <button class="btn-primary" onclick="goTo('onboard-3')">Tiếp theo →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: ONBOARD 3 - Trình độ ============ -->
+  <div class="screen" id="sc-onboard-3">
+    <div class="onboard-wrap">
+      <div class="onboard-step-dots">
+        <div class="dot"></div><div class="dot"></div><div class="dot active"></div><div class="dot"></div>
+      </div>
+      <div class="onboard-title">Trình độ của bạn?</div>
+      <div class="onboard-sub">Tự đánh giá thành thật để ghép được đúng người. Bạn có thể cập nhật sau.</div>
+      <div class="freq-row">
+        <div class="freq-btn" onclick="selectFreq(this)">
+          <div><div class="freq-label">🌱 Beginner</div><div style="font-size:11px;color:var(--text3);margin-top:2px;">Mới chơi, đang học cơ bản</div></div>
+          <div class="freq-check">✓</div>
+        </div>
+        <div class="freq-btn active" onclick="selectFreq(this)">
+          <div><div class="freq-label">⚡ Intermediate</div><div style="font-size:11px;color:var(--text3);margin-top:2px;">Chơi được 1-2 năm, đánh ổn định</div></div>
+          <div class="freq-check">✓</div>
+        </div>
+        <div class="freq-btn" onclick="selectFreq(this)">
+          <div><div class="freq-label">🔥 Advanced</div><div style="font-size:11px;color:var(--text3);margin-top:2px;">Chơi giải, kỹ thuật tốt</div></div>
+          <div class="freq-check">✓</div>
+        </div>
+      </div>
+      <div class="mt-auto">
+        <button class="btn-primary" onclick="goTo('onboard-4')">Tiếp theo →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: ONBOARD 4 - Tần suất ============ -->
+  <div class="screen" id="sc-onboard-4">
+    <div class="onboard-wrap">
+      <div class="onboard-step-dots">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot active"></div>
+      </div>
+      <div class="onboard-title">Bạn chơi bao thường?</div>
+      <div class="onboard-sub">Để chúng tôi gợi ý nội dung và ghép sân phù hợp nhịp độ của bạn.</div>
+      <div class="freq-row">
+        <div class="freq-btn" onclick="selectFreq(this)">
+          <div class="freq-label">🌿 1–2 lần / tuần</div>
+          <div class="freq-check">✓</div>
+        </div>
+        <div class="freq-btn active" onclick="selectFreq(this)">
+          <div class="freq-label">⚡ 3–4 lần / tuần</div>
+          <div class="freq-check">✓</div>
+        </div>
+        <div class="freq-btn" onclick="selectFreq(this)">
+          <div class="freq-label">🔥 5+ lần / tuần</div>
+          <div class="freq-check">✓</div>
+        </div>
+      </div>
+      <div class="mt-auto">
+        <button class="btn-primary" onclick="goTo('feed')">Vào RaSân! 🎉</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: HOME FEED ============ -->
+  <div class="screen" id="sc-feed">
+    <div class="app-header">
+      <div class="header-logo">RaSân</div>
+      <div style="flex:1"></div>
+      <div style="position:relative">
+        <button class="header-action" onclick="goTo('notifications')">🔔</button>
+        <div class="notif-dot"></div>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab active">Đang follow</div>
+      <div class="tab" onclick="goTo('discover')">Khám phá</div>
+    </div>
+    <div class="scroll-content">
+      <!-- Post 1 - checkin -->
+      <div class="feed-card">
+        <div class="card-header">
+          <div class="avatar av-green">MK</div>
+          <div class="card-meta">
+            <div class="card-name">Minh Khoa <span class="badge badge-green" style="font-size:10px;padding:2px 7px;">⚡ Inter</span></div>
+            <div class="card-time">15 phút trước · Sunrise Pickleball Q7</div>
+          </div>
+        </div>
+        <div class="card-img">
+          <span class="card-img-label">📸 Ảnh trận đấu</span>
+        </div>
+        <div class="card-body">Trận sáng nay chơi với anh Tuấn, thắng 11-8, 11-6 💪 Cú smash cuối set 2 đẹp nhất tuần!</div>
+        <div class="card-actions">
+          <button class="react-btn active" onclick="toggleReact(this)">🔥 Hay 14</button>
+          <button class="react-btn" onclick="toggleReact(this)">🎯 Đỉnh 5</button>
+          <button class="react-btn" onclick="toggleReact(this)">💬 Cmt 3</button>
+        </div>
+      </div>
+      <!-- Post 2 - ghep san -->
+      <div class="feed-card">
+        <div class="card-header">
+          <div class="avatar av-purple">TL</div>
+          <div class="card-meta">
+            <div class="card-name">Thu Lan</div>
+            <div class="card-time">1 giờ trước · Quận Bình Thạnh</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <span class="badge badge-purple" style="margin-bottom:8px;display:inline-flex;">🤝 Ghép sân</span><br>
+          Cần 1 người nữa tối nay 7–9pm tại sân Court Arena BT. Trình độ intermediate trở lên. Phí chia 80k/người.
+        </div>
+        <div style="padding:0 16px 14px;">
+          <button class="btn-join" onclick="goTo('join-confirm')">Tôi muốn join →</button>
+        </div>
+      </div>
+      <!-- Post 3 - thành tích -->
+      <div class="feed-card">
+        <div class="card-header">
+          <div class="avatar av-orange">TH</div>
+          <div class="card-meta">
+            <div class="card-name">Thanh Hùng <span class="badge badge-orange" style="font-size:10px;padding:2px 7px;">🏆 #1 Q7</span></div>
+            <div class="card-time">3 giờ trước</div>
+          </div>
+        </div>
+        <div class="card-body">Tháng 3 đã chơi 31 trận 🔥 Streak 6 tuần liên tiếp. Ai muốn thách tôi cứ challenge!</div>
+        <div class="card-actions">
+          <button class="react-btn" onclick="toggleReact(this)">🔥 Hay 28</button>
+          <button class="react-btn" onclick="toggleReact(this)">👏 Tiến bộ 12</button>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item active" onclick="goTo('feed')"><div class="nav-icon">🏠</div><div class="nav-label">Feed</div></div>
+      <div class="nav-item" onclick="goTo('ghepsân')"><div class="nav-icon">🤝</div><div class="nav-label">Ghép sân</div></div>
+      <div class="nav-center-btn" onclick="goTo('post-create')"><div class="nav-center-inner">+</div><div class="nav-label" style="font-size:9px;color:var(--text3);margin-top:2px;">Đăng</div></div>
+      <div class="nav-item" onclick="goTo('community')"><div class="nav-icon">🌏</div><div class="nav-label">Cộng đồng</div></div>
+      <div class="nav-item" onclick="goTo('profile')"><div class="nav-icon">👤</div><div class="nav-label">Tôi</div></div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: DISCOVER ============ -->
+  <div class="screen" id="sc-discover">
+    <div class="app-header">
+      <div class="header-logo">RaSân</div>
+      <div style="flex:1"></div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab" onclick="goTo('feed')">Đang follow</div>
+      <div class="tab active">Khám phá</div>
+    </div>
+    <div class="filter-row">
+      <button class="filter-chip active">Tất cả</button>
+      <button class="filter-chip" onclick="toggleChip(this)">Quận 7</button>
+      <button class="filter-chip" onclick="toggleChip(this)">Bình Thạnh</button>
+      <button class="filter-chip" onclick="toggleChip(this)">Ghép sân</button>
+      <button class="filter-chip" onclick="toggleChip(this)">Thành tích</button>
+    </div>
+    <div class="scroll-content">
+      <div class="feed-card">
+        <div class="card-header">
+          <div class="avatar av-blue">PT</div>
+          <div class="card-meta">
+            <div class="card-name">Phúc Thịnh</div>
+            <div class="card-time">30 phút trước · Quận 2</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <span class="badge badge-purple" style="margin-bottom:8px;display:inline-flex;">🤝 Ghép sân</span><br>
+          2 chỗ trống sáng mai 6-8am. Sân Viet Arena Q2. Advanced welcome!
+        </div>
+        <div style="padding:0 16px 14px;"><button class="btn-join" onclick="goTo('join-confirm')">Tôi muốn join →</button></div>
+      </div>
+      <div class="feed-card">
+        <div class="card-header">
+          <div class="avatar av-green">LA</div>
+          <div class="card-meta">
+            <div class="card-name">Lan Anh</div>
+            <div class="card-time">2 giờ trước · Phú Nhuận</div>
+          </div>
+        </div>
+        <div class="card-img"><span class="card-img-label">🎥 Clip highlight</span></div>
+        <div class="card-body">Cú backhand cross-court đẹp nhất của mình tuần này 😍</div>
+        <div class="card-actions">
+          <button class="react-btn" onclick="toggleReact(this)">🔥 Hay 22</button>
+          <button class="react-btn" onclick="toggleReact(this)">🎯 Đỉnh 8</button>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="goTo('feed')"><div class="nav-icon">🏠</div><div class="nav-label">Feed</div></div>
+      <div class="nav-item" onclick="goTo('ghepsân')"><div class="nav-icon">🤝</div><div class="nav-label">Ghép sân</div></div>
+      <div class="nav-center-btn" onclick="goTo('post-create')"><div class="nav-center-inner">+</div><div class="nav-label" style="font-size:9px;color:var(--text3);margin-top:2px;">Đăng</div></div>
+      <div class="nav-item active" onclick="goTo('community')"><div class="nav-icon">🌏</div><div class="nav-label">Cộng đồng</div></div>
+      <div class="nav-item" onclick="goTo('profile')"><div class="nav-icon">👤</div><div class="nav-label">Tôi</div></div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: POST CREATE ============ -->
+  <div class="screen" id="sc-post-create">
+    <div class="app-header">
+      <button class="back-btn" onclick="goTo('feed')">✕</button>
+      <h1>Tạo bài đăng</h1>
+      <button class="header-action" style="width:auto;border-radius:20px;padding:0 14px;font-size:13px;font-weight:700;" onclick="goTo('feed')">Đăng</button>
+    </div>
+    <div class="scroll-content">
+      <div class="form-section" style="padding-bottom:0;">
+        <div class="form-row">
+          <label class="form-label">Loại bài đăng</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="skill-btn active" onclick="toggleSkill(this)" style="padding:12px;">
+              <div class="skill-icon" style="font-size:18px;">📸</div>
+              <div class="skill-label" style="font-size:12px;">Chia sẻ trận</div>
+            </div>
+            <div class="skill-btn" onclick="toggleSkill(this)" style="padding:12px;">
+              <div class="skill-icon" style="font-size:18px;">🤝</div>
+              <div class="skill-label" style="font-size:12px;">Tìm ghép sân</div>
+            </div>
+            <div class="skill-btn" onclick="toggleSkill(this)" style="padding:12px;">
+              <div class="skill-icon" style="font-size:18px;">💬</div>
+              <div class="skill-label" style="font-size:12px;">Hỏi cộng đồng</div>
+            </div>
+            <div class="skill-btn" onclick="toggleSkill(this)" style="padding:12px;">
+              <div class="skill-icon" style="font-size:18px;">🏆</div>
+              <div class="skill-label" style="font-size:12px;">Khoe thành tích</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <textarea class="form-input" rows="4" placeholder="Chia sẻ điều gì đó với cộng đồng...">Trận sáng nay tuyệt vời! Thắng 11-8, 11-6 💪</textarea>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Tag sân</label>
+          <input class="form-input" type="text" placeholder="Tìm sân..." value="Sunrise Pickleball Q7">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Tag người chơi</label>
+          <input class="form-input" type="text" placeholder="@tên người chơi">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Hiển thị</label>
+          <div class="segment-control">
+            <button class="seg-btn active">🌍 Công khai</button>
+            <button class="seg-btn" onclick="switchSeg(this)">👥 Chỉ follow</button>
+          </div>
+        </div>
+        <div style="background:var(--surface2);border-radius:12px;padding:16px;border:2px dashed var(--border);text-align:center;cursor:pointer;margin-bottom:16px;">
+          <div style="font-size:24px;margin-bottom:6px;">📷</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text2);">Thêm ảnh / video</div>
+          <div style="font-size:11px;color:var(--text3);">Tối đa 9 ảnh hoặc 1 video 60 giây</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: CHECK-IN 1 ============ -->
+  <div class="screen" id="sc-checkin-1">
+    <div class="app-header">
+      <button class="back-btn" onclick="goTo('feed')">←</button>
+      <h1>Check-in trận đấu</h1>
+    </div>
+    <div style="padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="flex:1;height:4px;background:var(--brand);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px;text-align:center;">Bước 1/5 — Chọn sân</div>
+    </div>
+    <div class="scroll-content">
+      <div class="form-section">
+        <div class="form-row">
+          <label class="form-label">Tìm sân đã chơi</label>
+          <input class="form-input" type="text" placeholder="Tên sân..." value="Sunrise">
+        </div>
+        <div style="background:var(--surface);border-radius:12px;overflow:hidden;border:1px solid var(--border);">
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;cursor:pointer;background:var(--brand-light);">
+            <div style="font-size:20px;">🏟️</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--brand-dark);">Sunrise Pickleball</div>
+              <div style="font-size:11px;color:var(--text3);">Đường Nguyễn Văn Linh, Quận 7</div>
+            </div>
+            <div style="margin-left:auto;color:var(--brand);font-size:16px;">✓</div>
+          </div>
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;cursor:pointer;">
+            <div style="font-size:20px;">🏟️</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);">Sunrise Court Bình Thạnh</div>
+              <div style="font-size:11px;color:var(--text3);">Đường Nơ Trang Long, Bình Thạnh</div>
+            </div>
+          </div>
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;">
+            <div style="font-size:16px;color:var(--text3);">+</div>
+            <div style="font-size:13px;color:var(--text2);">Thêm sân mới</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:16px 20px;">
+      <button class="btn-primary" onclick="goTo('checkin-2')">Tiếp theo →</button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: CHECK-IN 2 ============ -->
+  <div class="screen" id="sc-checkin-2">
+    <div class="app-header">
+      <button class="back-btn" onclick="goTo('checkin-1')">←</button>
+      <h1>Kết quả trận</h1>
+    </div>
+    <div style="padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="flex:1;height:4px;background:var(--brand);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--brand);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px;text-align:center;">Bước 2/5 — Kết quả</div>
+    </div>
+    <div class="scroll-content">
+      <div class="form-section">
+        <div class="form-row">
+          <label class="form-label">Bạn thắng hay thua?</label>
+          <div class="segment-control">
+            <button class="seg-btn active" style="color:var(--brand)">🏆 Thắng</button>
+            <button class="seg-btn" onclick="switchSeg(this)">😅 Thua</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Tỉ số (tuỳ chọn)</label>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="score-row">
+              <span style="font-size:11px;color:var(--text3);width:40px;">Set 1</span>
+              <input class="score-input" value="11">
+              <span class="score-vs">–</span>
+              <input class="score-input" value="8">
+            </div>
+            <div class="score-row">
+              <span style="font-size:11px;color:var(--text3);width:40px;">Set 2</span>
+              <input class="score-input" value="11">
+              <span class="score-vs">–</span>
+              <input class="score-input" value="6">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:16px 20px;">
+      <button class="btn-primary" onclick="goTo('checkin-3')">Tiếp theo →</button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: CHECK-IN 3 / CONFIRM ============ -->
+  <div class="screen" id="sc-checkin-3">
+    <div class="app-header">
+      <button class="back-btn" onclick="goTo('checkin-2')">←</button>
+      <h1>Tag & Đăng</h1>
+    </div>
+    <div style="padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="flex:1;height:4px;background:var(--brand);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--brand);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--brand);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px;text-align:center;">Bước 3/5 — Tag đối thủ</div>
+    </div>
+    <div class="scroll-content">
+      <div class="form-section">
+        <div class="form-row">
+          <label class="form-label">Tag đối thủ / đồng đội</label>
+          <input class="form-input" type="text" placeholder="@tên người chơi" value="@Thanh Hùng">
+        </div>
+        <div style="background:var(--brand-light);border-radius:12px;padding:14px 16px;border:1px solid var(--brand);margin-bottom:16px;">
+          <div style="font-size:12px;font-weight:700;color:var(--brand-dark);margin-bottom:8px;">Tóm tắt check-in</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.8;">
+            🏟️ Sunrise Pickleball Q7<br>
+            🏆 Thắng · 11-8, 11-6<br>
+            👤 vs @Thanh Hùng
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Đăng lên feed?</label>
+          <div class="segment-control">
+            <button class="seg-btn active">📢 Đăng công khai</button>
+            <button class="seg-btn" onclick="switchSeg(this)">🔒 Chỉ lưu</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:16px 20px;display:flex;flex-direction:column;gap:10px;">
+      <button class="btn-primary" onclick="goTo('feed')">✓ Hoàn thành Check-in</button>
+      <button class="btn-secondary" onclick="goTo('feed')">Bỏ qua, chỉ lưu stats</button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: GHÉP SÂN ============ -->
+  <div class="screen" id="sc-ghepsân">
+    <div class="app-header">
+      <h1>Ghép sân</h1>
+      <button class="header-action" onclick="goTo('post-create')">+</button>
+    </div>
+    <div class="filter-row">
+      <button class="filter-chip active">Hôm nay</button>
+      <button class="filter-chip" onclick="toggleChip(this)">Ngày mai</button>
+      <button class="filter-chip" onclick="toggleChip(this)">Quận 7</button>
+      <button class="filter-chip" onclick="toggleChip(this)">Bình Thạnh</button>
+      <button class="filter-chip" onclick="toggleChip(this)">Intermediate</button>
+    </div>
+    <div class="scroll-content">
+      <div class="match-card" onclick="goTo('join-confirm')">
+        <div class="mc-top">
+          <div>
+            <div class="mc-name">Court Arena Bình Thạnh</div>
+            <div class="mc-detail">🕖 19:00 – 21:00 · Hôm nay</div>
+            <div class="mc-detail" style="margin-top:4px;">
+              <span class="mc-chip">Intermediate</span>
+              <span class="mc-chip">80k/người</span>
+            </div>
+          </div>
+          <span class="badge badge-green">1 chỗ</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+          <div class="avatar av-purple" style="width:28px;height:28px;font-size:10px;">TL</div>
+          <div style="font-size:12px;color:var(--text2);">Thu Lan tổ chức · 3 người tham gia</div>
+        </div>
+      </div>
+
+      <div class="match-card" onclick="goTo('join-confirm')">
+        <div class="mc-top">
+          <div>
+            <div class="mc-name">Sunrise Pickleball Q7</div>
+            <div class="mc-detail">🕗 20:00 – 22:00 · Hôm nay</div>
+            <div class="mc-detail" style="margin-top:4px;">
+              <span class="mc-chip">Any level</span>
+              <span class="mc-chip">60k/người</span>
+            </div>
+          </div>
+          <span class="badge badge-green">2 chỗ</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+          <div class="avatar av-orange" style="width:28px;height:28px;font-size:10px;">TH</div>
+          <div style="font-size:12px;color:var(--text2);">Thanh Hùng tổ chức · 2 người tham gia</div>
+        </div>
+      </div>
+
+      <div class="match-card full">
+        <div class="mc-top">
+          <div>
+            <div class="mc-name">Viet Arena Quận 2</div>
+            <div class="mc-detail">🕕 18:00 – 20:00 · Hôm nay</div>
+            <div class="mc-detail" style="margin-top:4px;">
+              <span class="mc-chip">Advanced</span>
+              <span class="mc-chip">100k/người</span>
+            </div>
+          </div>
+          <span class="badge badge-red">Đã đủ</span>
+        </div>
+      </div>
+
+      <div class="match-card" onclick="goTo('join-confirm')">
+        <div class="mc-top">
+          <div>
+            <div class="mc-name">ProCourt Phú Nhuận</div>
+            <div class="mc-detail">🌅 06:00 – 08:00 · Ngày mai</div>
+            <div class="mc-detail" style="margin-top:4px;">
+              <span class="mc-chip">Intermediate+</span>
+              <span class="mc-chip">70k/người</span>
+            </div>
+          </div>
+          <span class="badge badge-orange">3 chỗ</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+          <div class="avatar av-blue" style="width:28px;height:28px;font-size:10px;">LA</div>
+          <div style="font-size:12px;color:var(--text2);">Lan Anh tổ chức · 1 người tham gia</div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="goTo('feed')"><div class="nav-icon">🏠</div><div class="nav-label">Feed</div></div>
+      <div class="nav-item active"><div class="nav-icon">🤝</div><div class="nav-label">Ghép sân</div></div>
+      <div class="nav-center-btn" onclick="goTo('post-create')"><div class="nav-center-inner">+</div><div class="nav-label" style="font-size:9px;color:var(--text3);margin-top:2px;">Đăng</div></div>
+      <div class="nav-item" onclick="goTo('community')"><div class="nav-icon">🌏</div><div class="nav-label">Cộng đồng</div></div>
+      <div class="nav-item" onclick="goTo('profile')"><div class="nav-icon">👤</div><div class="nav-label">Tôi</div></div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: JOIN CONFIRM ============ -->
+  <div class="screen" id="sc-join-confirm">
+    <div class="app-header">
+      <button class="back-btn" onclick="goTo('ghepsân')">←</button>
+      <h1>Chi tiết trận</h1>
+    </div>
+    <div class="scroll-content">
+      <div style="padding:16px 20px;background:var(--surface);border-bottom:1px solid var(--border);">
+        <div style="font-size:18px;font-weight:800;color:var(--text);letter-spacing:-0.5px;margin-bottom:4px;">Court Arena Bình Thạnh</div>
+        <div style="font-size:13px;color:var(--text3);">123 Nơ Trang Long, Bình Thạnh</div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+          <span class="badge badge-green">🕖 19:00 – 21:00</span>
+          <span class="badge badge-purple">⚡ Intermediate</span>
+          <span class="badge badge-gray">💰 80k/người</span>
+        </div>
+      </div>
+      <div style="padding:16px 20px;">
+        <div style="font-size:12px;font-weight:700;color:var(--text3);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:12px;">Người tổ chức</div>
+        <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:12px;padding:14px;border:1px solid var(--border);">
+          <div class="avatar av-purple" style="width:44px;height:44px;font-size:14px;">TL</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);">Thu Lan</div>
+            <div style="font-size:12px;color:var(--text3);">Intermediate · 89 trận · 64% win</div>
+          </div>
+          <span class="badge badge-green" style="margin-left:auto;">★ 4.9</span>
+        </div>
+      </div>
+      <div style="padding:0 20px 16px;">
+        <div style="font-size:12px;font-weight:700;color:var(--text3);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:12px;">Đã tham gia (3/4)</div>
+        <div style="display:flex;gap:-4px;">
+          <div class="avatar av-purple" style="width:36px;height:36px;font-size:12px;border:2px solid white;">TL</div>
+          <div class="avatar av-green" style="width:36px;height:36px;font-size:12px;border:2px solid white;margin-left:-8px;">MK</div>
+          <div class="avatar av-orange" style="width:36px;height:36px;font-size:12px;border:2px solid white;margin-left:-8px;">TH</div>
+          <div style="width:36px;height:36px;border-radius:50%;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--text3);margin-left:-8px;">+</div>
+        </div>
+      </div>
+      <div style="margin:0 20px;background:var(--surface2);border-radius:12px;padding:12px 16px;border:1px solid var(--border);">
+        <div style="font-size:12px;color:var(--text2);line-height:1.6;">💬 "Mang giày non-marking nha mọi người. Có nước và vợt cho thuê tại sân."</div>
+      </div>
+    </div>
+    <div style="padding:16px 20px;display:flex;flex-direction:column;gap:10px;">
+      <button class="btn-primary" onclick="showJoinSuccess()">Gửi yêu cầu join →</button>
+      <button class="btn-secondary" onclick="goTo('ghepsân')">Quay lại</button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: PROFILE ============ -->
+  <div class="screen" id="sc-profile">
+    <div class="app-header">
+      <h1>Trang cá nhân</h1>
+      <button class="header-action" onclick="goTo('stats')">📊</button>
+    </div>
+    <div class="scroll-content">
+      <div class="profile-hero">
+        <div class="profile-avatar av-green">MK</div>
+        <div class="profile-name">Minh Khoa</div>
+        <div class="profile-meta">Quận 7 · ⚡ Intermediate · 3-4 lần/tuần</div>
+        <div class="profile-stats">
+          <div class="pstat"><div class="pstat-num">127</div><div class="pstat-label">Trận</div></div>
+          <div class="pstat"><div class="pstat-num">68%</div><div class="pstat-label">Win rate</div></div>
+          <div class="pstat"><div class="pstat-num">84</div><div class="pstat-label">Followers</div></div>
+          <div class="pstat"><div class="pstat-num">62</div><div class="pstat-label">Following</div></div>
+        </div>
+      </div>
+      <div class="follow-wrap">
+        <button class="btn-primary" style="flex:2;" onclick="goTo('checkin-1')">+ Check-in trận mới</button>
+        <button class="btn-secondary" style="flex:1;">Chỉnh sửa</button>
+      </div>
+      <div class="streak-bar">
+        <div class="streak-icon">🔥</div>
+        <div>
+          <div class="streak-text">Streak 6 tuần!</div>
+          <div class="streak-sub">Bạn đã chơi liên tục 6 tuần không nghỉ</div>
+        </div>
+      </div>
+      <div onclick="goTo('owner-dashboard')" style="margin:10px 14px;background:var(--surface);border-radius:var(--radius);padding:14px 16px;border:1px solid var(--border);display:flex;align-items:center;gap:14px;cursor:pointer;" onmouseover="this.style.borderColor='var(--brand)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="width:40px;height:40px;background:var(--brand-light);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🏟️</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:700;color:var(--text);">Sân của tôi</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px;">Sunrise Pickleball Q7 · ✓ Verified</div>
+        </div>
+        <div style="font-size:18px;color:var(--text3);">›</div>
+      </div>
+      <div class="tab-bar" style="margin-top:8px;">
+        <div class="tab active">Bài đăng</div>
+        <div class="tab">Thành tích</div>
+        <div class="tab">Huy hiệu</div>
+      </div>
+      <div class="feed-card">
+        <div class="card-header">
+          <div class="avatar av-green">MK</div>
+          <div class="card-meta">
+            <div class="card-name">Minh Khoa</div>
+            <div class="card-time">Hôm nay · Sunrise Pickleball Q7</div>
+          </div>
+        </div>
+        <div class="card-img"><span class="card-img-label">📸 Ảnh trận</span></div>
+        <div class="card-body">Thắng 11-8, 11-6 🏆 Tháng này chơi được 24 trận rồi!</div>
+        <div class="card-actions">
+          <button class="react-btn">🔥 Hay 14</button>
+          <button class="react-btn">💬 Cmt 3</button>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="goTo('feed')"><div class="nav-icon">🏠</div><div class="nav-label">Feed</div></div>
+      <div class="nav-item" onclick="goTo('ghepsân')"><div class="nav-icon">🤝</div><div class="nav-label">Ghép sân</div></div>
+      <div class="nav-center-btn" onclick="goTo('post-create')"><div class="nav-center-inner">+</div><div class="nav-label" style="font-size:9px;color:var(--text3);margin-top:2px;">Đăng</div></div>
+      <div class="nav-item" onclick="goTo('community')"><div class="nav-icon">🌏</div><div class="nav-label">Cộng đồng</div></div>
+      <div class="nav-item active"><div class="nav-icon">👤</div><div class="nav-label">Tôi</div></div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: STATS ============ -->
+  <div class="screen" id="sc-stats">
+    <div class="app-header">
+      <button class="back-btn" onclick="goTo('profile')">←</button>
+      <h1>Thành tích & Xếp hạng</h1>
+    </div>
+    <div class="scroll-content">
+      <div class="section-label">Tháng 3 · 2025</div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-num">24</div>
+          <div class="stat-label">Trận tháng này</div>
+          <div class="stat-change">+6 vs tháng trước</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">68%</div>
+          <div class="stat-label">Win rate</div>
+          <div class="stat-change">+3% vs tháng trước</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">127</div>
+          <div class="stat-label">Tổng trận</div>
+          <div class="stat-change" style="color:var(--text3);">All time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" style="color:var(--warning);">🔥 6</div>
+          <div class="stat-label">Tuần streak</div>
+          <div class="stat-change">Cá nhân kỷ lục!</div>
+        </div>
+      </div>
+
+      <div class="section-label">Sân hay đến nhất</div>
+      <div style="padding:0 14px 8px;">
+        <div style="background:var(--surface);border-radius:12px;overflow:hidden;border:1px solid var(--border);">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);">
+            <span style="font-size:13px;font-weight:600;color:var(--text);">🏟️ Sunrise Pickleball Q7</span>
+            <span style="font-size:13px;font-weight:700;color:var(--brand);">14 trận</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);">
+            <span style="font-size:13px;font-weight:600;color:var(--text);">🏟️ Court Arena BT</span>
+            <span style="font-size:13px;font-weight:700;color:var(--text2);">7 trận</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;">
+            <span style="font-size:13px;font-weight:600;color:var(--text);">🏟️ Viet Arena Q2</span>
+            <span style="font-size:13px;font-weight:700;color:var(--text2);">3 trận</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">Leaderboard · Quận 7 · Tháng 3</div>
+      <div class="leaderboard">
+        <div class="lb-row">
+          <div class="lb-rank gold">🥇</div>
+          <div class="avatar av-orange" style="width:32px;height:32px;font-size:11px;">TH</div>
+          <div class="lb-name">Thanh Hùng</div>
+          <div class="lb-score">31</div>
+        </div>
+        <div class="lb-row">
+          <div class="lb-rank silver">🥈</div>
+          <div class="avatar av-green" style="width:32px;height:32px;font-size:11px;">LA</div>
+          <div class="lb-name">Lan Anh</div>
+          <div class="lb-score">28</div>
+        </div>
+        <div class="lb-row me">
+          <div class="lb-rank bronze">🥉</div>
+          <div class="avatar av-green" style="width:32px;height:32px;font-size:11px;">MK</div>
+          <div class="lb-name" style="color:var(--brand-dark);font-weight:700;">Minh Khoa (tôi)</div>
+          <div class="lb-score">24</div>
+        </div>
+        <div class="lb-row">
+          <div class="lb-rank">#4</div>
+          <div class="avatar av-blue" style="width:32px;height:32px;font-size:11px;">PT</div>
+          <div class="lb-name">Phúc Thịnh</div>
+          <div class="lb-score">19</div>
+        </div>
+        <div class="lb-row">
+          <div class="lb-rank">#5</div>
+          <div class="avatar av-purple" style="width:32px;height:32px;font-size:11px;">TL</div>
+          <div class="lb-name">Thu Lan</div>
+          <div class="lb-score">17</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: COMMUNITY ============ -->
+  <div class="screen" id="sc-community">
+    <div class="app-header">
+      <h1>Cộng đồng</h1>
+    </div>
+    <div class="community-search-wrap">
+      <div class="community-search-bar">
+        <span class="community-search-icon">🏓</span>
+        <input class="community-search-input" type="text" placeholder="Tìm kiếm cộng đồng..." readonly>
+        <div class="community-search-actions">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+      </div>
+      <div class="community-quick-filters">
+        <button class="cqf-btn" onclick="toggleCQF(this)">🏸 Cầu lông gần tôi</button>
+        <button class="cqf-btn active" onclick="toggleCQF(this)">🏓 Pickleball gần tôi</button>
+        <button class="cqf-btn" onclick="toggleCQF(this)">🎟️ Xé vé gần tôi</button>
+      </div>
+    </div>
+    <div class="scroll-content">
+      <div class="section-label">Cộng đồng của tôi</div>
+      <div class="community-card">
+        <div class="community-icon">🏟️</div>
+        <div>
+          <div class="community-name">Pickleball Quận 7</div>
+          <div class="community-count">1,240 thành viên · 38 bài/ngày</div>
+        </div>
+        <button class="community-join joined">✓ Đã join</button>
+      </div>
+      <div class="community-card">
+        <div class="community-icon">🎯</div>
+        <div>
+          <div class="community-name">Pickleball Bình Thạnh</div>
+          <div class="community-count">890 thành viên · 24 bài/ngày</div>
+        </div>
+        <button class="community-join joined">✓ Đã join</button>
+      </div>
+
+      <div class="section-label" style="margin-top:8px;">Khám phá thêm</div>
+      <div class="community-card">
+        <div class="community-icon">⚡</div>
+        <div>
+          <div class="community-name">Pickleball Quận 2</div>
+          <div class="community-count">654 thành viên · 18 bài/ngày</div>
+        </div>
+        <button class="community-join" onclick="joinCommunity(this)">+ Tham gia</button>
+      </div>
+      <div class="community-card">
+        <div class="community-icon">🌟</div>
+        <div>
+          <div class="community-name">Pickleball Thủ Đức</div>
+          <div class="community-count">432 thành viên · 11 bài/ngày</div>
+        </div>
+        <button class="community-join" onclick="joinCommunity(this)">+ Tham gia</button>
+      </div>
+      <div class="community-card">
+        <div class="community-icon">🔥</div>
+        <div>
+          <div class="community-name">Pickleball Phú Nhuận</div>
+          <div class="community-count">378 thành viên · 9 bài/ngày</div>
+        </div>
+        <button class="community-join" onclick="joinCommunity(this)">+ Tham gia</button>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="goTo('feed')"><div class="nav-icon">🏠</div><div class="nav-label">Feed</div></div>
+      <div class="nav-item" onclick="goTo('ghepsân')"><div class="nav-icon">🤝</div><div class="nav-label">Ghép sân</div></div>
+      <div class="nav-center-btn" onclick="goTo('post-create')"><div class="nav-center-inner">+</div><div class="nav-label" style="font-size:9px;color:var(--text3);margin-top:2px;">Đăng</div></div>
+      <div class="nav-item active"><div class="nav-icon">🌏</div><div class="nav-label">Cộng đồng</div></div>
+      <div class="nav-item" onclick="goTo('profile')"><div class="nav-icon">👤</div><div class="nav-label">Tôi</div></div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: NOTIFICATIONS ============ -->
+  <div class="screen" id="sc-notifications">
+    <div class="app-header">
+      <button class="back-btn" onclick="goTo('feed')">←</button>
+      <h1>Thông báo</h1>
+    </div>
+    <div class="scroll-content">
+      <div class="notif-item notif-unread">
+        <div class="notif-av-wrap">
+          <div class="avatar av-orange notif-avatar">TH</div>
+          <div class="notif-icon-badge" style="background:#FFD700;font-size:11px;">🔥</div>
+        </div>
+        <div>
+          <div class="notif-text"><b>Thanh Hùng</b> đã react 🔥 vào check-in của bạn</div>
+          <div class="notif-time">5 phút trước</div>
+        </div>
+      </div>
+      <div class="notif-item notif-unread">
+        <div class="notif-av-wrap">
+          <div class="avatar av-purple notif-avatar">TL</div>
+          <div class="notif-icon-badge" style="background:#534AB7;color:white;font-size:8px;">✓</div>
+        </div>
+        <div>
+          <div class="notif-text"><b>Thu Lan</b> đã xác nhận yêu cầu join của bạn cho trận 19:00 tối nay!</div>
+          <div class="notif-time">23 phút trước</div>
+        </div>
+      </div>
+      <div class="notif-item notif-unread">
+        <div class="notif-av-wrap">
+          <div class="avatar av-blue notif-avatar">PT</div>
+          <div class="notif-icon-badge" style="background:#E6F0FF;font-size:10px;">👥</div>
+        </div>
+        <div>
+          <div class="notif-text"><b>Phúc Thịnh</b> đã follow bạn</div>
+          <div class="notif-time">1 giờ trước</div>
+        </div>
+      </div>
+      <div class="notif-item">
+        <div class="notif-av-wrap">
+          <div class="avatar av-green notif-avatar" style="background:var(--brand-light);color:var(--brand-dark);">RS</div>
+        </div>
+        <div>
+          <div class="notif-text"><b>Trận ghép sân</b> của bạn sắp bắt đầu trong 30 phút. Court Arena BT lúc 19:00!</div>
+          <div class="notif-time">2 giờ trước</div>
+        </div>
+      </div>
+      <div class="notif-item">
+        <div class="notif-av-wrap">
+          <div class="avatar av-green notif-avatar">LA</div>
+          <div class="notif-icon-badge" style="background:#E1F5EE;font-size:10px;">💬</div>
+        </div>
+        <div>
+          <div class="notif-text"><b>Lan Anh</b> đã bình luận: "Trận đó hay quá anh ơi! 🎯"</div>
+          <div class="notif-time">3 giờ trước</div>
+        </div>
+      </div>
+      <div class="notif-item">
+        <div class="notif-av-wrap">
+          <div class="avatar av-green notif-avatar" style="background:var(--brand-light);color:var(--brand-dark);">RS</div>
+        </div>
+        <div>
+          <div class="notif-text">Có <b>3 bài ghép sân mới</b> trong cộng đồng Quận 7 của bạn!</div>
+          <div class="notif-time">5 giờ trước</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============ SCREEN: SEARCH ============ -->
+  <div class="screen" id="sc-search">
+    <div style="background:var(--surface);padding:14px 20px 10px;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:10px;background:var(--surface2);border-radius:14px;padding:10px 14px;">
+        <span style="font-size:18px;">🔍</span>
+        <input style="flex:1;background:none;border:none;outline:none;font-family:var(--font);font-size:14px;color:var(--text);" type="text" placeholder="Tìm sân, sự kiện..." value="Sunrise">
+      </div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab active">🏟️ Sân</div>
+      <div class="tab" onclick="switchTab(this)">🎟️ Sự kiện</div>
+    </div>
+    <div class="filter-row">
+      <button class="filter-chip active">Gần tôi</button>
+      <button class="filter-chip" onclick="toggleChip(this)">Quận 7</button>
+      <button class="filter-chip" onclick="toggleChip(this)">Bình Thạnh</button>
+      <button class="filter-chip" onclick="toggleChip(this)">Còn trống</button>
+      <button class="filter-chip" onclick="toggleChip(this)">★ 4.5+</button>
+    </div>
+    <div class="scroll-content">
+      <div style="background:linear-gradient(135deg,#d4e8d4,#c8dcc8);height:120px;display:flex;align-items:center;justify-content:center;position:relative;margin:0 14px 4px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);">
+        <div style="text-align:center;"><div style="font-size:24px;">🗺️</div><div style="font-size:12px;color:var(--text2);font-weight:600;margin-top:4px;">Map View · 3 sân trong 3km</div></div>
+        <div style="position:absolute;top:28px;left:58px;font-size:22px;">📍</div>
+        <div style="position:absolute;top:48px;left:120px;font-size:22px;">📍</div>
+        <div style="position:absolute;top:24px;left:188px;font-size:22px;">📍</div>
+      </div>
+      <div class="match-card" onclick="goTo('court')" style="cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:52px;height:52px;background:var(--brand-light);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🏟️</div>
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div style="font-size:14px;font-weight:700;color:var(--text);">Sunrise Pickleball Q7</div>
+              <span class="badge badge-green" style="font-size:10px;padding:1px 6px;">✓</span>
+            </div>
+            <div style="font-size:12px;color:var(--text3);margin-top:2px;">📍 1.2km · Quận 7</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+              <span style="font-size:12px;font-weight:700;color:var(--brand);">★ 4.8</span>
+              <span class="badge badge-green" style="font-size:10px;">3 slot hôm nay</span>
+              <span style="font-size:12px;color:var(--text3);">từ 120k/h</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="match-card" onclick="goTo('court')" style="cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:52px;height:52px;background:#fff0e6;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🏟️</div>
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div style="font-size:14px;font-weight:700;color:var(--text);">Court Arena Bình Thạnh</div>
+              <span class="badge badge-green" style="font-size:10px;padding:1px 6px;">✓</span>
+            </div>
+            <div style="font-size:12px;color:var(--text3);margin-top:2px;">📍 2.4km · Bình Thạnh</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+              <span style="font-size:12px;font-weight:700;color:var(--brand);">★ 4.7</span>
+              <span class="badge badge-green" style="font-size:10px;">1 slot hôm nay</span>
+              <span style="font-size:12px;color:var(--text3);">từ 150k/h</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="match-card" style="opacity:0.6;cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:52px;height:52px;background:#e6f0ff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🏟️</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:700;color:var(--text);">Viet Arena Quận 2</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:2px;">📍 3.1km · Quận 2</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+              <span style="font-size:12px;font-weight:700;color:var(--brand);">★ 4.5</span>
+              <span class="badge badge-red" style="font-size:10px;">Hết slot hôm nay</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="goTo('feed')"><div class="nav-icon">🏠</div><div class="nav-label">Feed</div></div>
+      <div class="nav-item" onclick="goTo('ghepsân')"><div class="nav-icon">🤝</div><div class="nav-label">Ghép sân</div></div>
+      <div class="nav-center-btn" onclick="goTo('post-create')"><div class="nav-center-inner">+</div><div class="nav-label" style="font-size:9px;color:var(--text3);margin-top:2px;">Đăng</div></div>
+      <div class="nav-item active"><div class="nav-icon">🔍</div><div class="nav-label">Tìm sân</div></div>
+      <div class="nav-item" onclick="goTo('profile')"><div class="nav-icon">👤</div><div class="nav-label">Tôi</div></div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: COURT PROFILE ============ -->
+  <div class="screen" id="sc-court">
+    <div class="app-header">
+      <button class="back-btn" onclick="goTo('search')">←</button>
+      <h1>Chi tiết sân</h1>
+      <span class="badge badge-green" style="font-size:11px;">✓ Verified</span>
+    </div>
+    <div class="scroll-content">
+      <div style="background:linear-gradient(135deg,#c8f0d4,#e8f9ee);height:180px;display:flex;align-items:center;justify-content:center;position:relative;">
+        <span style="font-size:48px;">🏟️</span>
+        <div style="position:absolute;bottom:12px;left:16px;display:flex;gap:6px;">
+          <span class="badge badge-green">★ 4.8</span>
+          <span class="badge badge-gray">142 reviews</span>
+        </div>
+      </div>
+      <div style="background:var(--surface);padding:16px 20px;border-bottom:1px solid var(--border);">
+        <div style="font-size:18px;font-weight:800;color:var(--text);letter-spacing:-0.5px;">Sunrise Pickleball Q7</div>
+        <div style="font-size:13px;color:var(--text3);margin-top:4px;">📍 123 Nguyễn Văn Linh, Quận 7 · 4 courts</div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+          <span class="badge badge-gray">🚿 Phòng tắm</span>
+          <span class="badge badge-gray">🅿️ Bãi xe</span>
+          <span class="badge badge-gray">💧 Nước uống</span>
+          <span class="badge badge-gray">🏪 Cho thuê vợt</span>
+        </div>
+      </div>
+      <div style="background:var(--surface);padding:14px 20px;border-bottom:1px solid var(--border);">
+        <div style="font-size:12px;font-weight:700;color:var(--text3);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:10px;">Giá sân</div>
+        <div style="display:flex;gap:10px;">
+          <div style="flex:1;background:var(--surface2);border-radius:12px;padding:12px;text-align:center;">
+            <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">⏰ Giờ thường</div>
+            <div style="font-size:18px;font-weight:800;color:var(--text);">120k</div>
+            <div style="font-size:10px;color:var(--text3);">/giờ/sân</div>
+          </div>
+          <div style="flex:1;background:#fff5e6;border-radius:12px;padding:12px;text-align:center;border:1px solid #ffd580;">
+            <div style="font-size:11px;color:var(--warning);margin-bottom:4px;">🔥 Giờ vàng</div>
+            <div style="font-size:18px;font-weight:800;color:var(--text);">180k</div>
+            <div style="font-size:10px;color:var(--text3);">/giờ/sân</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:8px;">Giờ vàng: 6–9am và 5–10pm · Hủy miễn phí trước 24h</div>
+      </div>
+      <div style="padding:14px 20px;background:var(--surface);">
+        <div style="font-size:12px;font-weight:700;color:var(--text3);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:12px;">Slot trống hôm nay</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          <div style="border-radius:10px;padding:11px 8px;text-align:center;opacity:0.35;background:var(--surface2);">
+            <div style="font-size:12px;font-weight:700;color:var(--text2);">6:00</div><div style="font-size:10px;color:var(--text3);">Đã đặt</div>
+          </div>
+          <div style="border-radius:10px;padding:11px 8px;text-align:center;opacity:0.35;background:var(--surface2);">
+            <div style="font-size:12px;font-weight:700;color:var(--text2);">8:00</div><div style="font-size:10px;color:var(--text3);">Đã đặt</div>
+          </div>
+          <div style="border-radius:10px;padding:11px 8px;text-align:center;background:var(--brand-light);border:2px solid var(--brand);cursor:pointer;" onclick="goTo('booking-1')">
+            <div style="font-size:12px;font-weight:700;color:var(--brand-dark);">10:00</div><div style="font-size:10px;color:var(--brand);">120k ✓</div>
+          </div>
+          <div style="border-radius:10px;padding:11px 8px;text-align:center;background:var(--surface2);border:1.5px solid var(--border);cursor:pointer;" onclick="goTo('booking-1')">
+            <div style="font-size:12px;font-weight:700;color:var(--text2);">14:00</div><div style="font-size:10px;color:var(--text3);">120k</div>
+          </div>
+          <div style="border-radius:10px;padding:11px 8px;text-align:center;background:var(--surface2);border:1.5px solid var(--border);cursor:pointer;" onclick="goTo('booking-1')">
+            <div style="font-size:12px;font-weight:700;color:var(--text2);">16:00</div><div style="font-size:10px;color:var(--text3);">120k</div>
+          </div>
+          <div style="border-radius:10px;padding:11px 8px;text-align:center;background:#fff5e6;border:1.5px solid #ffd580;cursor:pointer;" onclick="goTo('booking-1')">
+            <div style="font-size:12px;font-weight:700;color:var(--warning);">19:00</div><div style="font-size:10px;color:var(--warning);">180k 🔥</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:16px 20px;">
+      <button class="btn-primary" onclick="goTo('booking-1')">Chọn giờ & Đặt sân →</button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: BOOKING 1/4 ============ -->
+  <div class="screen" id="sc-booking-1">
+    <div class="app-header">
+      <button class="back-btn" onclick="goTo('court')">←</button>
+      <h1>Đặt sân</h1>
+    </div>
+    <div style="padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="flex:1;height:4px;background:var(--brand);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px;text-align:center;">Bước 1/4 — Chọn ngày & giờ</div>
+    </div>
+    <div class="scroll-content">
+      <div class="form-section">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px;">🏟️ Sunrise Pickleball Q7</div>
+        <div class="form-row">
+          <label class="form-label">Ngày chơi</label>
+          <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;">
+            <div style="background:var(--brand);color:white;border-radius:12px;padding:10px 16px;text-align:center;cursor:pointer;flex-shrink:0;">
+              <div style="font-size:11px;">Hôm nay</div><div style="font-size:15px;font-weight:800;">15/3</div>
+            </div>
+            <div style="background:var(--surface2);border-radius:12px;padding:10px 16px;text-align:center;cursor:pointer;flex-shrink:0;">
+              <div style="font-size:11px;color:var(--text3);">Thứ 7</div><div style="font-size:15px;font-weight:700;color:var(--text);">16/3</div>
+            </div>
+            <div style="background:var(--surface2);border-radius:12px;padding:10px 16px;text-align:center;cursor:pointer;flex-shrink:0;">
+              <div style="font-size:11px;color:var(--text3);">CN</div><div style="font-size:15px;font-weight:700;color:var(--text);">17/3</div>
+            </div>
+            <div style="background:var(--surface2);border-radius:12px;padding:10px 16px;text-align:center;cursor:pointer;flex-shrink:0;">
+              <div style="font-size:11px;color:var(--text3);">Thứ 2</div><div style="font-size:15px;font-weight:700;color:var(--text);">18/3</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Giờ bắt đầu</label>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+            <div style="border-radius:10px;padding:11px 8px;text-align:center;opacity:0.35;background:var(--surface2);">
+              <div style="font-size:13px;font-weight:700;color:var(--text2);">6:00</div><div style="font-size:10px;color:var(--text3);">Đã đặt</div>
+            </div>
+            <div style="border-radius:10px;padding:11px 8px;text-align:center;opacity:0.35;background:var(--surface2);">
+              <div style="font-size:13px;font-weight:700;color:var(--text2);">8:00</div><div style="font-size:10px;color:var(--text3);">Đã đặt</div>
+            </div>
+            <div style="border-radius:10px;padding:11px 8px;text-align:center;background:var(--brand-light);border:2px solid var(--brand);cursor:pointer;">
+              <div style="font-size:13px;font-weight:700;color:var(--brand-dark);">10:00</div><div style="font-size:10px;color:var(--brand);">120k ✓</div>
+            </div>
+            <div style="border-radius:10px;padding:11px 8px;text-align:center;background:var(--surface2);border:1.5px solid var(--border);cursor:pointer;">
+              <div style="font-size:13px;font-weight:700;color:var(--text2);">14:00</div><div style="font-size:10px;color:var(--text3);">120k</div>
+            </div>
+            <div style="border-radius:10px;padding:11px 8px;text-align:center;background:var(--surface2);border:1.5px solid var(--border);cursor:pointer;">
+              <div style="font-size:13px;font-weight:700;color:var(--text2);">16:00</div><div style="font-size:10px;color:var(--text3);">120k</div>
+            </div>
+            <div style="border-radius:10px;padding:11px 8px;text-align:center;background:#fff5e6;border:1.5px solid #ffd580;cursor:pointer;">
+              <div style="font-size:13px;font-weight:700;color:var(--warning);">19:00</div><div style="font-size:10px;color:var(--warning);">180k 🔥</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Thời lượng</label>
+          <div class="segment-control">
+            <button class="seg-btn active">1 giờ</button>
+            <button class="seg-btn" onclick="switchSeg(this)">1.5 giờ</button>
+            <button class="seg-btn" onclick="switchSeg(this)">2 giờ</button>
+          </div>
+        </div>
+        <div style="background:var(--brand-light);border-radius:12px;padding:12px 16px;border:1px solid var(--brand);display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:13px;color:var(--brand-dark);">10:00 – 11:00 · Hôm nay</div>
+          <div style="font-size:16px;font-weight:800;color:var(--brand-dark);">120.000đ</div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:16px 20px;">
+      <button class="btn-primary" onclick="goTo('booking-2')">Tiếp theo →</button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: BOOKING 2/4 ============ -->
+  <div class="screen" id="sc-booking-2">
+    <div class="app-header">
+      <button class="back-btn" onclick="goTo('booking-1')">←</button>
+      <h1>Xác nhận</h1>
+    </div>
+    <div style="padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="flex:1;height:4px;background:var(--brand);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--brand);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px;text-align:center;">Bước 2/4 — Xác nhận chi tiết</div>
+    </div>
+    <div class="scroll-content">
+      <div class="form-section">
+        <div style="background:var(--surface2);border-radius:14px;padding:16px;margin-bottom:16px;border:1px solid var(--border);">
+          <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:6px;">Sunrise Pickleball Q7</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.9;">📅 Thứ 7, 15/03/2025<br>⏰ 10:00 – 11:00 (1 giờ)<br>📍 123 Nguyễn Văn Linh, Q7</div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Số court</label>
+          <div style="display:flex;gap:8px;">
+            <div style="flex:1;background:var(--brand-light);border-radius:10px;padding:12px;text-align:center;border:2px solid var(--brand);cursor:pointer;">
+              <div style="font-size:13px;font-weight:700;color:var(--brand-dark);">Court 1</div><div style="font-size:10px;color:var(--brand);">✓ Còn trống</div>
+            </div>
+            <div style="flex:1;background:var(--surface2);border-radius:10px;padding:12px;text-align:center;border:1.5px solid var(--border);opacity:0.4;">
+              <div style="font-size:13px;font-weight:700;color:var(--text2);">Court 2</div><div style="font-size:10px;color:var(--text3);">Đã đặt</div>
+            </div>
+            <div style="flex:1;background:var(--surface2);border-radius:10px;padding:12px;text-align:center;border:1.5px solid var(--border);cursor:pointer;">
+              <div style="font-size:13px;font-weight:700;color:var(--text2);">Court 3</div><div style="font-size:10px;color:var(--text3);">Còn trống</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Ghi chú cho chủ sân (tuỳ chọn)</label>
+          <input class="form-input" type="text" placeholder="VD: 4 người chơi, mang thêm bóng...">
+        </div>
+        <div style="background:var(--surface);border-radius:12px;padding:14px 16px;border:1px solid var(--border);">
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text2);margin-bottom:8px;"><span>Giá sân 1 giờ</span><span>120.000đ</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--brand);margin-bottom:8px;"><span>💚 Cashback ví (2%)</span><span>-2.400đ</span></div>
+          <div style="border-top:1px solid var(--border);padding-top:8px;display:flex;justify-content:space-between;font-size:15px;font-weight:800;color:var(--text);"><span>Tổng thanh toán</span><span>120.000đ</span></div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:16px 20px;">
+      <button class="btn-primary" onclick="goTo('booking-3')">Chọn phương thức thanh toán →</button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: BOOKING 3/4 ============ -->
+  <div class="screen" id="sc-booking-3">
+    <div class="app-header">
+      <button class="back-btn" onclick="goTo('booking-2')">←</button>
+      <h1>Thanh toán</h1>
+    </div>
+    <div style="padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="flex:1;height:4px;background:var(--brand);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--brand);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--brand);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px;text-align:center;">Bước 3/4 — Thanh toán</div>
+    </div>
+    <div class="scroll-content">
+      <div style="background:var(--brand);padding:20px 24px;text-align:center;">
+        <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-bottom:4px;">Tổng thanh toán</div>
+        <div style="font-size:34px;font-weight:900;color:white;letter-spacing:-1px;">120.000đ</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:4px;">Slot được giữ trong <b style="color:white;">9:47</b></div>
+      </div>
+      <div class="form-section">
+        <label class="form-label">Phương thức thanh toán</label>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="pay-method active-pay" style="background:var(--brand-light);border-radius:12px;padding:14px 16px;border:2px solid var(--brand);cursor:pointer;display:flex;align-items:center;gap:12px;" onclick="selectPayment(this)">
+            <div style="width:36px;height:36px;background:var(--brand);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;">💚</div>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--brand-dark);">Ví RaSân</div><div style="font-size:11px;color:var(--brand);">Số dư: 450.000đ · +2% cashback</div></div>
+            <div class="pay-indicator" style="width:18px;height:18px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;color:white;font-size:10px;">✓</div>
+          </div>
+          <div class="pay-method" style="background:var(--surface);border-radius:12px;padding:14px 16px;border:1.5px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:12px;" onclick="selectPayment(this)">
+            <div style="width:36px;height:36px;background:#ae2070;border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;">MM</div>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--text);">MoMo</div><div style="font-size:11px;color:var(--text3);">Thanh toán qua ví MoMo</div></div>
+            <div class="pay-indicator" style="width:18px;height:18px;border-radius:50%;border:2px solid var(--border);"></div>
+          </div>
+          <div class="pay-method" style="background:var(--surface);border-radius:12px;padding:14px 16px;border:1.5px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:12px;" onclick="selectPayment(this)">
+            <div style="width:36px;height:36px;background:#0066cc;border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:700;">VNP</div>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--text);">VNPay</div><div style="font-size:11px;color:var(--text3);">QR / Thẻ ngân hàng</div></div>
+            <div class="pay-indicator" style="width:18px;height:18px;border-radius:50%;border:2px solid var(--border);"></div>
+          </div>
+          <div class="pay-method" style="background:var(--surface);border-radius:12px;padding:14px 16px;border:1.5px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:12px;" onclick="selectPayment(this)">
+            <div style="width:36px;height:36px;background:#0068ff;border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:700;">ZLP</div>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--text);">ZaloPay</div><div style="font-size:11px;color:var(--text3);">Thanh toán qua ZaloPay</div></div>
+            <div class="pay-indicator" style="width:18px;height:18px;border-radius:50%;border:2px solid var(--border);"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:16px 20px;">
+      <button class="btn-primary" onclick="goTo('booking-done')">Xác nhận thanh toán 120.000đ</button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: BOOKING CONFIRMED ============ -->
+  <div class="screen" id="sc-booking-done">
+    <div style="background:var(--brand);padding:36px 24px 28px;text-align:center;">
+      <div style="font-size:56px;margin-bottom:12px;">✅</div>
+      <div style="font-size:20px;font-weight:800;color:white;margin-bottom:6px;">Đặt sân thành công!</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.8);">Cashback <b style="color:white;">2.400đ</b> đã vào ví của bạn</div>
+    </div>
+    <div class="scroll-content">
+      <div style="margin:16px 20px;background:var(--surface);border-radius:16px;padding:20px;text-align:center;border:1px solid var(--border);">
+        <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:12px;">Mã check-in tại sân</div>
+        <div style="width:120px;height:120px;background:var(--surface2);border-radius:12px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;border:2px dashed var(--brand);">
+          <div style="font-size:11px;color:var(--text3);">QR Code</div>
+        </div>
+        <div style="font-size:18px;font-weight:800;color:var(--text);letter-spacing:3px;">RS-20250315-1047</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;">Xuất trình khi đến sân</div>
+      </div>
+      <div style="margin:0 20px;background:var(--surface);border-radius:14px;overflow:hidden;border:1px solid var(--border);">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;"><span style="font-size:13px;color:var(--text3);">Sân</span><span style="font-size:13px;font-weight:700;color:var(--text);">Sunrise Pickleball Q7</span></div>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;"><span style="font-size:13px;color:var(--text3);">Thời gian</span><span style="font-size:13px;font-weight:700;color:var(--text);">10:00–11:00, 15/3</span></div>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;"><span style="font-size:13px;color:var(--text3);">Court</span><span style="font-size:13px;font-weight:700;color:var(--text);">Court 1</span></div>
+        <div style="padding:12px 16px;display:flex;justify-content:space-between;"><span style="font-size:13px;color:var(--text3);">Đã thanh toán</span><span style="font-size:13px;font-weight:700;color:var(--brand);">120.000đ · Ví RaSân</span></div>
+      </div>
+      <div style="padding:16px 20px;display:flex;flex-direction:column;gap:10px;">
+        <button class="btn-primary" onclick="goTo('checkin-1')">+ Check-in trận sau trận →</button>
+        <button class="btn-secondary" onclick="goTo('feed')">Về Feed</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: OWNER DASHBOARD ============ -->
+  <div class="screen" id="sc-owner-dashboard">
+    <div class="app-header">
+      <button class="back-btn" onclick="goTo('profile')">←</button>
+      <h1>Dashboard chủ sân</h1>
+      <button class="header-action" style="width:auto;border-radius:20px;padding:0 14px;font-size:12px;font-weight:700;">⚙️</button>
+    </div>
+    <div class="scroll-content">
+      <div style="background:var(--brand);padding:20px 24px;">
+        <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:4px;">Doanh thu tháng 3</div>
+        <div style="font-size:32px;font-weight:900;color:white;letter-spacing:-1px;">18.240.000đ</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:4px;">Net sau hoa hồng 4%: <b>17.510.000đ</b></div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-num">152</div><div class="stat-label">Bookings tháng này</div><div class="stat-change">+18 vs tháng trước</div></div>
+        <div class="stat-card"><div class="stat-num">87%</div><div class="stat-label">Tỉ lệ lấp đầy</div><div class="stat-change">+5% vs tháng trước</div></div>
+        <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">No-show tháng này</div><div class="stat-change" style="color:var(--danger);">Xem chi tiết</div></div>
+        <div class="stat-card"><div class="stat-num">★ 4.8</div><div class="stat-label">Rating sân</div><div class="stat-change">142 reviews</div></div>
+      </div>
+      <div class="section-label">Bookings hôm nay · 15/03</div>
+      <div style="margin:0 14px;background:var(--surface);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;">
+          <div style="width:46px;text-align:center;flex-shrink:0;"><div style="font-size:11px;color:var(--brand);font-weight:700;">6:00</div><div style="font-size:10px;color:var(--text3);">1h · C2</div></div>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--text);">Minh Khoa</div><div style="font-size:11px;color:var(--text3);">120.000đ</div></div>
+          <span class="badge badge-green">Confirmed</span>
+        </div>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;">
+          <div style="width:46px;text-align:center;flex-shrink:0;"><div style="font-size:11px;color:var(--brand);font-weight:700;">10:00</div><div style="font-size:10px;color:var(--text3);">2h · C1</div></div>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--text);">Thu Lan</div><div style="font-size:11px;color:var(--text3);">240.000đ</div></div>
+          <span class="badge badge-green">Confirmed</span>
+        </div>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:#f0fdf4;">
+          <div style="width:46px;text-align:center;flex-shrink:0;"><div style="font-size:11px;color:var(--warning);font-weight:700;">19:00</div><div style="font-size:10px;color:var(--text3);">1h · C3</div></div>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--text);">Phúc Thịnh</div><div style="font-size:11px;color:var(--text3);">180.000đ 🔥</div></div>
+          <span class="badge badge-orange">Sắp tới</span>
+        </div>
+        <div style="padding:12px 16px;display:flex;align-items:center;gap:12px;opacity:0.5;">
+          <div style="width:46px;text-align:center;flex-shrink:0;"><div style="font-size:11px;color:var(--text3);font-weight:700;">21:00</div></div>
+          <div style="flex:1;font-size:13px;color:var(--text3);">Trống — chưa có booking</div>
+          <button style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;font-family:var(--font);">Chặn</button>
+        </div>
+      </div>
+      <div style="margin:10px 14px;background:var(--purple-light);border-radius:var(--radius);padding:14px 16px;border:1px solid var(--purple);display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-size:13px;font-weight:700;color:var(--purple);">Payout sắp tới</div><div style="font-size:11px;color:var(--purple);opacity:0.8;margin-top:2px;">Thứ 2, 17/03 · Techcombank ****1234</div></div>
+        <div style="font-size:17px;font-weight:800;color:var(--purple);">4.380k</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: EVENTS & VÉ ============ -->
+  <div class="screen" id="sc-events">
+    <div class="app-header">
+      <h1>Sự kiện & Vé</h1>
+      <button class="header-action" onclick="goTo('post-create')">+</button>
+    </div>
+    <div class="filter-row">
+      <button class="filter-chip active">Sắp tới</button>
+      <button class="filter-chip" onclick="toggleChip(this)">Quận 7</button>
+      <button class="filter-chip" onclick="toggleChip(this)">Bình Thạnh</button>
+      <button class="filter-chip" onclick="toggleChip(this)">Miễn phí</button>
+    </div>
+    <div class="scroll-content">
+      <div style="margin:8px 14px;background:var(--surface);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);">
+        <div style="background:linear-gradient(135deg,#c8f0d4,#e8f5ff);height:100px;display:flex;align-items:center;justify-content:center;position:relative;">
+          <div style="text-align:center;"><div style="font-size:28px;">🏆</div><div style="font-size:11px;font-weight:600;color:var(--brand-dark);">RaSân Open Cup #3</div></div>
+          <div style="position:absolute;top:10px;right:12px;"><span class="badge badge-green">12 vé còn lại</span></div>
+        </div>
+        <div style="padding:14px 16px;">
+          <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:6px;">RaSân Open Cup #3</div>
+          <div style="font-size:12px;color:var(--text3);line-height:1.9;">📅 Chủ nhật 22/03 · 8:00–17:00<br>🏟️ Sunrise Pickleball Q7 · ⚡ Intermediate+</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
+            <div><div style="font-size:18px;font-weight:800;color:var(--brand);">150.000đ</div><div style="font-size:10px;color:var(--text3);">/người</div></div>
+            <button class="btn-primary btn-sm" onclick="goTo('ticket-buy')">Mua vé →</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin:8px 14px;background:var(--surface);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);">
+        <div style="background:linear-gradient(135deg,#ede8f8,#f8e8ff);height:100px;display:flex;align-items:center;justify-content:center;position:relative;">
+          <div style="text-align:center;"><div style="font-size:28px;">🎯</div><div style="font-size:11px;font-weight:600;color:var(--purple);">Pickleball BT Social Day</div></div>
+          <div style="position:absolute;top:10px;right:12px;"><span class="badge badge-red">Hết vé chính thức</span></div>
+        </div>
+        <div style="padding:14px 16px;">
+          <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:6px;">Pickleball BT Social Day</div>
+          <div style="font-size:12px;color:var(--text3);">📅 Thứ 7, 20/03 · 14:00–20:00 · Court Arena BT</div>
+          <div style="background:var(--purple-light);border-radius:10px;padding:10px 12px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;">
+            <div style="font-size:12px;color:var(--purple);font-weight:600;">🎟️ 3 vé P2P có sẵn · từ 150k</div>
+            <button style="background:var(--purple);color:white;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);" onclick="goTo('ticket-buy')">Xé vé →</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin:8px 14px;background:var(--surface);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);">
+        <div style="background:linear-gradient(135deg,#fff0e6,#ffe8cc);height:100px;display:flex;align-items:center;justify-content:center;">
+          <div style="text-align:center;"><div style="font-size:28px;">🌅</div><div style="font-size:11px;font-weight:600;color:var(--warning);">Morning League Q2</div></div>
+        </div>
+        <div style="padding:14px 16px;">
+          <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:6px;">Morning League Q2 — Tháng 4</div>
+          <div style="font-size:12px;color:var(--text3);">📅 Mỗi Thứ 7 tháng 4 · 6:00–10:00 · Viet Arena Q2</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
+            <div><div style="font-size:18px;font-weight:800;color:var(--brand);">300.000đ</div><div style="font-size:10px;color:var(--text3);">/tháng (4 buổi)</div></div>
+            <button class="btn-primary btn-sm" onclick="goTo('ticket-buy')">Đăng ký →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item active"><div class="nav-icon">🏠</div><div class="nav-label">Feed</div></div>
+      <div class="nav-item" onclick="goTo('ghepsân')"><div class="nav-icon">🤝</div><div class="nav-label">Ghép sân</div></div>
+      <div class="nav-center-btn" onclick="goTo('post-create')"><div class="nav-center-inner">+</div><div class="nav-label" style="font-size:9px;color:var(--text3);margin-top:2px;">Đăng</div></div>
+      <div class="nav-item" onclick="goTo('search')"><div class="nav-icon">🔍</div><div class="nav-label">Tìm sân</div></div>
+      <div class="nav-item" onclick="goTo('profile')"><div class="nav-icon">👤</div><div class="nav-label">Tôi</div></div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: TICKET BUY ============ -->
+  <div class="screen" id="sc-ticket-buy">
+    <div class="app-header">
+      <button class="back-btn" onclick="goTo('events')">←</button>
+      <h1>Mua vé</h1>
+    </div>
+    <div class="scroll-content">
+      <div style="background:linear-gradient(135deg,#c8f0d4,#e8f5ff);padding:24px 20px;text-align:center;">
+        <div style="font-size:36px;margin-bottom:8px;">🏆</div>
+        <div style="font-size:18px;font-weight:800;color:var(--text);">RaSân Open Cup #3</div>
+        <div style="font-size:13px;color:var(--text2);margin-top:4px;">Chủ nhật, 22/03 · Sunrise Pickleball Q7</div>
+      </div>
+      <div class="form-section">
+        <div class="form-row">
+          <label class="form-label">Loại vé</label>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="background:var(--brand-light);border-radius:12px;padding:14px 16px;border:2px solid var(--brand);display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+              <div><div style="font-size:14px;font-weight:700;color:var(--brand-dark);">Cá nhân</div><div style="font-size:11px;color:var(--brand);">1 người tham gia</div></div>
+              <div style="font-size:16px;font-weight:800;color:var(--brand-dark);">150k</div>
+            </div>
+            <div style="background:var(--surface);border-radius:12px;padding:14px 16px;border:1.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+              <div><div style="font-size:14px;font-weight:700;color:var(--text);">Đôi</div><div style="font-size:11px;color:var(--text3);">2 người tham gia</div></div>
+              <div style="font-size:16px;font-weight:800;color:var(--text);">280k</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Số lượng</label>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <button style="width:36px;height:36px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:var(--font);">−</button>
+            <span style="font-size:22px;font-weight:800;color:var(--text);">1</span>
+            <button style="width:36px;height:36px;border-radius:50%;background:var(--brand);border:none;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;font-family:var(--font);">+</button>
+          </div>
+        </div>
+        <div style="background:var(--surface);border-radius:12px;padding:14px 16px;border:1px solid var(--border);margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text2);margin-bottom:8px;"><span>1 × Vé cá nhân</span><span>150.000đ</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text3);margin-bottom:8px;"><span>Platform fee (5%)</span><span>7.500đ</span></div>
+          <div style="border-top:1px solid var(--border);padding-top:8px;display:flex;justify-content:space-between;font-size:15px;font-weight:800;color:var(--text);"><span>Tổng</span><span>157.500đ</span></div>
+        </div>
+        <div style="background:var(--brand-light);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--brand-dark);">🔒 Tiền vào escrow đến sau sự kiện. Hoàn 100% nếu BTC hủy.</div>
+      </div>
+    </div>
+    <div style="padding:16px 20px;">
+      <button class="btn-primary" onclick="goTo('booking-3')">Thanh toán 157.500đ →</button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: VÍ RASAN ============ -->
+  <div class="screen" id="sc-wallet">
+    <div class="app-header">
+      <button class="back-btn" onclick="goTo('profile')">←</button>
+      <h1>Ví RaSân</h1>
+    </div>
+    <div class="scroll-content">
+      <div style="background:linear-gradient(135deg,var(--brand),var(--brand-dark));padding:28px 24px;text-align:center;">
+        <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-bottom:6px;">Số dư hiện tại</div>
+        <div style="font-size:40px;font-weight:900;color:white;letter-spacing:-1.5px;">450.000đ</div>
+        <div style="margin-top:10px;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border-radius:20px;padding:5px 14px;">
+          <span style="font-size:11px;color:white;">💚 +2.400đ cashback tháng này</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;padding:16px 20px;background:var(--surface);border-bottom:1px solid var(--border);">
+        <button style="flex:1;background:var(--brand-light);border:none;border-radius:12px;padding:14px 0;font-size:13px;font-weight:700;color:var(--brand-dark);cursor:pointer;font-family:var(--font);">+ Nạp tiền</button>
+        <button style="flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:14px 0;font-size:13px;font-weight:700;color:var(--text);cursor:pointer;font-family:var(--font);">↓ Rút tiền</button>
+      </div>
+      <div class="section-label">Lịch sử giao dịch</div>
+      <div style="background:var(--surface);margin:0 14px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);">
+          <div style="width:36px;height:36px;background:var(--brand-light);border-radius:10px;display:flex;align-items:center;justify-content:center;">💚</div>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:var(--text);">Cashback · Sunrise Q7</div><div style="font-size:11px;color:var(--text3);">Hôm nay · 10:00</div></div>
+          <div style="font-size:13px;font-weight:700;color:var(--brand);">+2.400đ</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);">
+          <div style="width:36px;height:36px;background:#ffeaea;border-radius:10px;display:flex;align-items:center;justify-content:center;">🏟️</div>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:var(--text);">Đặt sân · Sunrise Q7</div><div style="font-size:11px;color:var(--text3);">Hôm nay · 10:00</div></div>
+          <div style="font-size:13px;font-weight:700;color:var(--danger);">−120.000đ</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);">
+          <div style="width:36px;height:36px;background:#e6f0ff;border-radius:10px;display:flex;align-items:center;justify-content:center;">⬆️</div>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:var(--text);">Nạp tiền · VNPay</div><div style="font-size:11px;color:var(--text3);">12/03 · 09:14</div></div>
+          <div style="font-size:13px;font-weight:700;color:var(--brand);">+500.000đ</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);">
+          <div style="width:36px;height:36px;background:#ffeaea;border-radius:10px;display:flex;align-items:center;justify-content:center;">🎟️</div>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:var(--text);">Vé · BT Social Day</div><div style="font-size:11px;color:var(--text3);">10/03 · 20:30</div></div>
+          <div style="font-size:13px;font-weight:700;color:var(--danger);">−157.500đ</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;">
+          <div style="width:36px;height:36px;background:var(--brand-light);border-radius:10px;display:flex;align-items:center;justify-content:center;">💚</div>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:var(--text);">Cashback · Court Arena BT</div><div style="font-size:11px;color:var(--text3);">08/03 · 18:00</div></div>
+          <div style="font-size:13px;font-weight:700;color:var(--brand);">+3.600đ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: COURT OWNER ONBOARDING 1/5 ============ -->
+  <div class="screen" id="sc-court-onboard">
+    <div class="app-header">
+      <button class="back-btn" onclick="goTo('feed')">←</button>
+      <h1>Đăng ký sân</h1>
+    </div>
+    <div style="padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="flex:1;height:4px;background:var(--brand);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px;text-align:center;">Bước 1/5 — Thông tin sân</div>
+    </div>
+    <div class="scroll-content">
+      <div class="form-section">
+        <div style="background:var(--brand-light);border-radius:12px;padding:12px 16px;margin-bottom:16px;border:1px solid var(--brand);">
+          <div style="font-size:13px;font-weight:700;color:var(--brand-dark);">Đăng ký chủ sân</div>
+          <div style="font-size:12px;color:var(--brand-dark);opacity:0.8;margin-top:2px;">Sau khi duyệt (24h), sân sẽ xuất hiện trên RaSân và nhận booking tự động.</div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Tên sân *</label>
+          <input class="form-input" type="text" value="Court Arena Bình Thạnh">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Địa chỉ đầy đủ *</label>
+          <input class="form-input" type="text" value="123 Nơ Trang Long, Bình Thạnh">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Quận *</label>
+          <select class="form-input"><option>Bình Thạnh</option><option>Quận 7</option><option>Quận 2</option><option>Thủ Đức</option><option>Phú Nhuận</option></select>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Số courts *</label>
+          <div class="segment-control">
+            <button class="seg-btn" onclick="switchSeg(this)">1</button>
+            <button class="seg-btn" onclick="switchSeg(this)">2</button>
+            <button class="seg-btn active">4</button>
+            <button class="seg-btn" onclick="switchSeg(this)">6+</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Tiện ích</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <button class="filter-chip active" onclick="toggleChip(this)">🚿 Phòng tắm</button>
+            <button class="filter-chip active" onclick="toggleChip(this)">🅿️ Bãi xe</button>
+            <button class="filter-chip active" onclick="toggleChip(this)">💧 Nước uống</button>
+            <button class="filter-chip" onclick="toggleChip(this)">🏪 Cho thuê vợt</button>
+            <button class="filter-chip" onclick="toggleChip(this)">❄️ Điều hòa</button>
+            <button class="filter-chip" onclick="toggleChip(this)">📸 Camera</button>
+          </div>
+        </div>
+        <div style="background:var(--surface2);border-radius:12px;padding:16px;border:2px dashed var(--border);text-align:center;cursor:pointer;">
+          <div style="font-size:28px;margin-bottom:6px;">📸</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text2);">Upload ảnh sân</div>
+          <div style="font-size:11px;color:var(--text3);">Tối thiểu 4 ảnh · Tối đa 20 ảnh</div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:16px 20px;">
+      <button class="btn-primary" onclick="goTo('court-onboard-2')">Tiếp theo: Cài giá →</button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: COURT OWNER ONBOARDING 2/5 ============ -->
+  <div class="screen" id="sc-court-onboard-2">
+    <div class="app-header">
+      <button class="back-btn" onclick="goTo('court-onboard')">←</button>
+      <h1>Cài giá sân</h1>
+    </div>
+    <div style="padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="flex:1;height:4px;background:var(--brand);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--brand);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+        <div style="flex:1;height:4px;background:var(--border);border-radius:4px;"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px;text-align:center;">Bước 2/5 — Cài giá & chính sách</div>
+    </div>
+    <div class="scroll-content">
+      <div class="form-section">
+        <div style="background:var(--surface2);border-radius:12px;padding:12px 16px;margin-bottom:16px;">
+          <div style="font-size:12px;color:var(--text2);line-height:1.6;">💡 <b>Giờ vàng</b>: 6:00–9:00 và 17:00–22:00. Nên đặt cao hơn 30–50% giờ thường.</div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Giá giờ thường (VND/giờ/sân) *</label>
+          <input class="form-input" type="number" value="150000">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Giá giờ vàng (VND/giờ/sân) *</label>
+          <input class="form-input" type="number" value="220000">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Giờ mở cửa – Đóng cửa</label>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <input class="form-input" type="time" value="06:00" style="flex:1;">
+            <span style="color:var(--text3);">–</span>
+            <input class="form-input" type="time" value="22:00" style="flex:1;">
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Chính sách hủy</label>
+          <div class="freq-row">
+            <div class="freq-btn active" onclick="selectFreq(this)">
+              <div><div class="freq-label">Miễn phí hủy trước 24h</div><div style="font-size:11px;color:var(--text3);">Khuyến nghị — tăng tỉ lệ booking</div></div>
+              <div class="freq-check">✓</div>
+            </div>
+            <div class="freq-btn" onclick="selectFreq(this)">
+              <div><div class="freq-label">Miễn phí hủy trước 12h</div></div>
+              <div class="freq-check">✓</div>
+            </div>
+            <div class="freq-btn" onclick="selectFreq(this)">
+              <div><div class="freq-label">Không hoàn tiền</div></div>
+              <div class="freq-check">✓</div>
+            </div>
+          </div>
+        </div>
+        <div style="background:var(--brand-light);border-radius:12px;padding:14px 16px;border:1px solid var(--brand);">
+          <div style="font-size:12px;font-weight:700;color:var(--brand-dark);margin-bottom:10px;">Preview trên app</div>
+          <div style="display:flex;gap:10px;">
+            <div style="flex:1;background:white;border-radius:10px;padding:10px;text-align:center;"><div style="font-size:10px;color:var(--text3);">Giờ thường</div><div style="font-size:17px;font-weight:800;color:var(--text);">150k</div></div>
+            <div style="flex:1;background:#fff5e6;border-radius:10px;padding:10px;text-align:center;border:1px solid #ffd580;"><div style="font-size:10px;color:var(--warning);">🔥 Giờ vàng</div><div style="font-size:17px;font-weight:800;color:var(--text);">220k</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:16px 20px;display:flex;flex-direction:column;gap:10px;">
+      <button class="btn-primary" onclick="showOnboardSuccess()">Hoàn thành & Gửi duyệt ✓</button>
+      <div style="font-size:11px;color:var(--text3);text-align:center;">RaSân sẽ review và duyệt trong 24h. Bạn sẽ nhận thông báo khi sân được duyệt.</div>
+    </div>
+  </div>
+
+</div><!-- end phone -->
+</div><!-- end phone-wrap -->
+</div><!-- end demo-wrap -->
+
+<script>
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('sc-' + id);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.remove('active');
+    if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + id + "'")) b.classList.add('active');
+  });
+}
+function toggleReact(btn) { btn.classList.toggle('active'); }
+function toggleSkill(el) {
+  el.closest('.skill-grid, .form-row') ? el.classList.toggle('active') : null;
+}
+function toggleChip(chip) { chip.classList.toggle('active'); }
+function selectFreq(btn) {
+  btn.closest('.freq-row').querySelectorAll('.freq-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function switchSeg(btn) {
+  btn.closest('.segment-control').querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function toggleCQF(btn) {
+  btn.closest('.community-quick-filters').querySelectorAll('.cqf-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function joinCommunity(btn) {
+  btn.classList.add('joined');
+  btn.textContent = '✓ Đã join';
+}
+function showJoinSuccess() {
+  const btn = event.target;
+  btn.textContent = '✓ Đã gửi yêu cầu!';
+  btn.style.background = '#158f3e';
+  setTimeout(() => goTo('ghepsân'), 1200);
+}
+function selectPayment(el) {
+  const wrap = el.closest('.scroll-content');
+  wrap.querySelectorAll('.pay-method').forEach(m => {
+    m.style.borderColor = 'var(--border)';
+    m.style.background = 'var(--surface)';
+    const ind = m.querySelector('.pay-indicator');
+    if (ind) { ind.style.background = 'transparent'; ind.style.borderColor = 'var(--border)'; ind.textContent = ''; }
+  });
+  el.style.borderColor = 'var(--brand)';
+  el.style.background = 'var(--brand-light)';
+  const ind = el.querySelector('.pay-indicator');
+  if (ind) { ind.style.background = 'var(--brand)'; ind.style.borderColor = 'var(--brand)'; ind.style.color = 'white'; ind.textContent = '✓'; }
+}
+function switchTab(tab) {
+  tab.closest('.tab-bar').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+}
+function showOnboardSuccess() {
+  const btn = event.target;
+  btn.textContent = '✓ Đã gửi! Chờ duyệt trong 24h';
+  btn.style.background = '#158f3e';
+  setTimeout(() => goTo('owner-dashboard'), 1400);
+}
+</script>
+</body>
+</html>
